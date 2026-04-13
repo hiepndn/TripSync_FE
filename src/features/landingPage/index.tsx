@@ -23,6 +23,9 @@ import {
   Language,
   Share,
 } from '@mui/icons-material';
+import coverImg from '../../assets/landing-page-cover.jpg';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const features = [
   {
@@ -79,16 +82,26 @@ const steps = [
 ];
 
 const LandingPage = () => {
+  const token = localStorage.getItem('jwt');
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate('/login');
+  };
+  useEffect(() => {
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, [token, navigate]);
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f6f8f7' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#F0FDF4' }}>
       {/* Header */}
       <AppBar
         position="sticky"
         elevation={0}
         sx={{
-          bgcolor: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid #f0f4f2',
+          bgcolor: 'rgba(255, 255, 255, 0.8)', // Làm trong suốt hơn một chút
+          backdropFilter: 'blur(12px)', // Tăng độ mờ layer sau
+          borderBottom: '1px solid rgba(25, 230, 107, 0.1)', // Đổi viền sang màu xanh nhạt
         }}
       >
         <Container maxWidth="lg">
@@ -130,6 +143,7 @@ const LandingPage = () => {
                   fontWeight: 700,
                   '&:hover': { bgcolor: '#16d360' },
                 }}
+                onClick={handleClick}
               >
                 Đăng nhập
               </Button>
@@ -169,7 +183,7 @@ const LandingPage = () => {
                 dễ dàng hơn bao giờ hết
               </Box>
             </Typography> */}
-            <Box sx={{ }}>
+            <Box sx={{}}>
               {/* Phần chữ đen bình thường */}
               <Typography
                 variant="h1"
@@ -177,7 +191,7 @@ const LandingPage = () => {
                   fontWeight: 'bold',
                   color: '#000',
                   lineHeight: 1.2,
-                  fontSize: 70
+                  fontSize: 70,
                 }}
               >
                 Du lịch cùng nhau,
@@ -222,6 +236,7 @@ const LandingPage = () => {
                   },
                   transition: 'all 0.2s',
                 }}
+                onClick={handleClick}
               >
                 Bắt đầu ngay
               </Button>
@@ -254,7 +269,9 @@ const LandingPage = () => {
               <Box
                 sx={{
                   height: '100%',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  backgroundImage: `url(${coverImg})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
                   display: 'flex',
                   alignItems: 'flex-end',
                   p: 3,
@@ -271,7 +288,7 @@ const LandingPage = () => {
                 >
                   <Stack direction="row" justifyContent="space-between" mb={1}>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: '#638872' }}>
-                      CHUYẾN ĐI ĐÀ LẠT
+                      CHUYẾN ĐI ĐÀ NẴNG
                     </Typography>
                     <Typography
                       variant="caption"
@@ -330,13 +347,20 @@ const LandingPage = () => {
       <Box
         sx={{
           py: 5,
-          bgcolor: 'white',
-          borderTop: '1px solid #f0f4f2',
-          borderBottom: '1px solid #f0f4f2',
+          bgcolor: '#ffffff', // Màu trắng để làm nổi bật logo đối tác
+          borderTop: '1px solid rgba(25, 230, 107, 0.1)',
+          borderBottom: '1px solid rgba(25, 230, 107, 0.1)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.02)', // Đổ bóng nhẹ
         }}
       >
         <Container maxWidth="lg">
-          <Typography variant="h4" textAlign="center" sx={{fontWeight: 'bold'}} color="#111814" mb={4}>
+          <Typography
+            variant="h4"
+            textAlign="center"
+            sx={{ fontWeight: 'bold' }}
+            color="#111814"
+            mb={4}
+          >
             Đồng hành cùng những chuyến đi đáng nhớ
           </Typography>
           <Stack
@@ -435,9 +459,15 @@ const LandingPage = () => {
           </Box>
         </Stack>
       </Container>
-
-      {/* How It Works */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'white', position: 'relative' }}>
+      <Box
+        sx={{
+          py: { xs: 8, md: 12 },
+          bgcolor: '#ffffff',
+          borderRadius: { md: '80px 80px 0 0' }, // Bo cong nhẹ phần đỉnh để tạo hiệu ứng lớp chồng lớp
+          position: 'relative',
+          mt: -4, // Đè nhẹ lên section trước
+        }}
+      >
         <Container maxWidth="lg">
           <Box textAlign="center" mb={8}>
             <Typography variant="h3" fontWeight={700} color="#111814" mb={2}>
@@ -464,7 +494,7 @@ const LandingPage = () => {
                     height: 96,
                     borderRadius: '50%',
                     bgcolor: 'white',
-                    border: index === 1 ? '4px solid #19e66b' : '4px solid #f0f4f2',
+                    border: '4px solid #19e66b',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -474,7 +504,7 @@ const LandingPage = () => {
                   {step.icon ? (
                     <CalendarMonth sx={{ fontSize: 40, color: '#19e66b' }} />
                   ) : (
-                    <Typography variant="h3" fontWeight={900} color="#e5e7eb">
+                    <Typography variant="h3" fontWeight={900} color="#19e66b">
                       {step.step}
                     </Typography>
                   )}
@@ -530,6 +560,7 @@ const LandingPage = () => {
                 transform: 'scale(1.05)',
               },
             }}
+            onClick={handleClick}
           >
             Tham gia TripSync
           </Button>
@@ -542,10 +573,10 @@ const LandingPage = () => {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: {
-                xs: 'repeat(2, 1fr)',
-                md: 'repeat(4, 1fr)',
-              },
+              // gridTemplateColumns: {
+              //   xs: 'repeat(2, 1fr)',
+              //   md: 'repeat(4, 1fr)',
+              // },
               gap: 6,
               mb: 8,
             }}
@@ -559,52 +590,7 @@ const LandingPage = () => {
                 </Typography>
               </Box>
               <Typography variant="body2" color="#638872">
-                Ứng dụng lập kế hoạch du lịch nhóm số 1. Kết nối, chia sẻ và tận hưởng.
-              </Typography>
-            </Stack>
-
-            {/* Product */}
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle2" fontWeight={700} color="#111814">
-                SẢN PHẨM
-              </Typography>
-              <Typography variant="body2" color="#638872" sx={{ cursor: 'pointer' }}>
-                Tính năng
-              </Typography>
-              <Typography variant="body2" color="#638872" sx={{ cursor: 'pointer' }}>
-                Bảng giá
-              </Typography>
-              <Typography variant="body2" color="#638872" sx={{ cursor: 'pointer' }}>
-                Tải ứng dụng
-              </Typography>
-            </Stack>
-
-            {/* Company */}
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle2" fontWeight={700} color="#111814">
-                CÔNG TY
-              </Typography>
-              <Typography variant="body2" color="#638872" sx={{ cursor: 'pointer' }}>
-                Về chúng tôi
-              </Typography>
-              <Typography variant="body2" color="#638872" sx={{ cursor: 'pointer' }}>
-                Tuyển dụng
-              </Typography>
-              <Typography variant="body2" color="#638872" sx={{ cursor: 'pointer' }}>
-                Liên hệ
-              </Typography>
-            </Stack>
-
-            {/* Legal */}
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle2" fontWeight={700} color="#111814">
-                PHÁP LÝ
-              </Typography>
-              <Typography variant="body2" color="#638872" sx={{ cursor: 'pointer' }}>
-                Điều khoản
-              </Typography>
-              <Typography variant="body2" color="#638872" sx={{ cursor: 'pointer' }}>
-                Quyền riêng tư
+                Ứng dụng lập kế hoạch du lịch nhóm số một. Kết nối, chia sẻ và tận hưởng.
               </Typography>
             </Stack>
           </Box>
@@ -622,7 +608,7 @@ const LandingPage = () => {
             }}
           >
             <Typography variant="caption" color="#638872">
-              © 2023 TripSync Inc. All rights reserved.
+              © Đồ án tốt nghiệp - 2251161995
             </Typography>
             <Stack direction="row" spacing={2}>
               <IconButton size="small" sx={{ color: '#638872' }}>

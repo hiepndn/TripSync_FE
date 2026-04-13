@@ -1,13 +1,15 @@
+import authReducer from '@/features/auth/redux/reducer';
+import { groupReducer } from '@/features/dashboard/redux/reducer';
+import { tripDetailReducer } from '@/features/trip-detail/redux/reducer';
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 
-// Import reducers (sẽ thêm sau)
-// import authReducer from '@features/auth/store/authSlice';
 
 export const store = configureStore({
   reducer: {
-    // auth: authReducer,
-    // groups: groupsReducer,
+    auth: authReducer,
+    groups: groupReducer,
+    tripDetail: tripDetailReducer,
     // expenses: expensesReducer,
   },
   middleware: (getDefaultMiddleware) =>
