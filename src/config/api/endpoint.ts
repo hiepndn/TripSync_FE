@@ -8,6 +8,9 @@ export const ENDPOINTS = {
     JOIN: '/api/groups/join',
     GET_DETAIL: (id: string | number) => `/api/groups/${id}`,
     REGENERATE_AI: (groupId: string | number) => `/api/groups/${groupId}/regenerate-ai`,
+    UPDATE: (id: string | number) => `/api/groups/${id}`,
+    KICK_MEMBER: (groupId: string | number, userId: string | number) => `/api/groups/${groupId}/members/${userId}`,
+    DELETE: (id: string | number) => `/api/groups/${id}`,
   },
   ACTIVITY: {
     LIST: (groupId: string | number) => `/api/groups/${groupId}/activity`,
@@ -20,6 +23,7 @@ export const ENDPOINTS = {
       `/api/groups/${groupId}/activities/${activityId}`,
     DELETE: (groupId: string | number, activityId: string | number) =>
       `/api/groups/${groupId}/activities/${activityId}`,
+    DELETE_ALL: (groupId: string | number) => `/api/groups/${groupId}/activities`,
     RATE: (groupId: string | number, activityId: string | number) =>
       `/api/groups/${groupId}/activities/${activityId}/rate`,
     SUGGESTIONS: (groupId: string | number) =>

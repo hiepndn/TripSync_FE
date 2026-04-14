@@ -438,9 +438,10 @@ interface Props {
   loading: boolean;
   groupId: string;
   currentDate: any;
+  hideAddButton?: boolean;
 }
 
-export default function TripTimeline({ activities, loading, groupId, currentDate }: Props) {
+export default function TripTimeline({ activities, loading, groupId, currentDate, hideAddButton = false }: Props) {
   const [openAddModal, setOpenAddModal] = useState(false);
   const { myRole } = useAppSelector((state: any) => state.tripDetail);
   const isOwner = myRole === 'ADMIN';
@@ -487,20 +488,22 @@ export default function TripTimeline({ activities, loading, groupId, currentDate
             ))}
           </Timeline>
 
-          <Button
-            variant="outlined"
-            fullWidth
-            sx={{
-              mt: 2,
-              color: '#16a34a',
-              borderColor: '#16a34a',
-              borderStyle: 'dashed',
-              borderRadius: 3,
-            }}
-            onClick={() => setOpenAddModal(true)}
-          >
-            + Đề xuất hoạt động mới
-          </Button>
+          {!hideAddButton && (
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{
+                mt: 2,
+                color: '#16a34a',
+                borderColor: '#16a34a',
+                borderStyle: 'dashed',
+                borderRadius: 3,
+              }}
+              onClick={() => setOpenAddModal(true)}
+            >
+              + Đề xuất hoạt động mới
+            </Button>
+          )}
         </>
       )}
 

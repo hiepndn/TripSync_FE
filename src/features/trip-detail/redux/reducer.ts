@@ -51,6 +51,18 @@ import {
   DELETE_CHECKLIST_FAILURE,
   DELETE_CHECKLIST_REQUEST,
   DELETE_CHECKLIST_SUCCESS,
+  UPDATE_GROUP_REQUEST,
+  UPDATE_GROUP_SUCCESS,
+  UPDATE_GROUP_FAILURE,
+  KICK_MEMBER_REQUEST,
+  KICK_MEMBER_SUCCESS,
+  KICK_MEMBER_FAILURE,
+  DELETE_GROUP_REQUEST,
+  DELETE_GROUP_SUCCESS,
+  DELETE_GROUP_FAILURE,
+  DELETE_ALL_ACTIVITIES_REQUEST,
+  DELETE_ALL_ACTIVITIES_SUCCESS,
+  DELETE_ALL_ACTIVITIES_FAILURE,
 } from './types';
 
 interface TripDetailState {
@@ -134,6 +146,15 @@ export const tripDetailReducer = (state = initialState, action: any): TripDetail
     case UPDATE_ACTIVITY_SUCCESS:
     case DELETE_ACTIVITY_SUCCESS:
       return { ...state };
+
+    case DELETE_ALL_ACTIVITIES_REQUEST:
+      return { ...state, activitiesLoading: true, error: null };
+
+    case DELETE_ALL_ACTIVITIES_SUCCESS:
+      return { ...state, activitiesLoading: false, activities: [] };
+
+    case DELETE_ALL_ACTIVITIES_FAILURE:
+      return { ...state, activitiesLoading: false, error: action.payload };
 
     case ADD_ACTIVITY_FAILURE:
     case VOTE_ACTIVITY_FAILURE:
@@ -236,7 +257,24 @@ export const tripDetailReducer = (state = initialState, action: any): TripDetail
     case ASSIGN_CHECKLIST_FAILURE:
     case DELETE_CHECKLIST_FAILURE:
       return { ...state, error: action.payload };
-    
+
+    // ==========================================
+    // OVERVIEW TAB — UPDATE GROUP / KICK / DELETE
+    // ==========================================
+    case UPDATE_GROUP_REQUEST:
+    case KICK_MEMBER_REQUEST:
+    case DELETE_GROUP_REQUEST:
+      return { ...state, error: null };
+
+    case UPDATE_GROUP_SUCCESS:
+    case KICK_MEMBER_SUCCESS:
+    case DELETE_GROUP_SUCCESS:
+      return { ...state };
+
+    case UPDATE_GROUP_FAILURE:
+    case KICK_MEMBER_FAILURE:
+    case DELETE_GROUP_FAILURE:
+      return { ...state, error: action.payload };
 
     default:
       return state;

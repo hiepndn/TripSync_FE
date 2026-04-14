@@ -20,6 +20,9 @@ import {
   DELETE_ACTIVITY_FAILURE,
   DELETE_ACTIVITY_REQUEST,
   DELETE_ACTIVITY_SUCCESS,
+  DELETE_ALL_ACTIVITIES_FAILURE,
+  DELETE_ALL_ACTIVITIES_REQUEST,
+  DELETE_ALL_ACTIVITIES_SUCCESS,
   UPDATE_ACTIVITY_FAILURE,
   UPDATE_ACTIVITY_REQUEST,
   UPDATE_ACTIVITY_SUCCESS,
@@ -62,6 +65,15 @@ import {
   FETCH_SUGGESTIONS_REQUEST,
   FETCH_SUGGESTIONS_SUCCESS,
   FETCH_SUGGESTIONS_FAILURE,
+  UPDATE_GROUP_REQUEST,
+  UPDATE_GROUP_SUCCESS,
+  UPDATE_GROUP_FAILURE,
+  KICK_MEMBER_REQUEST,
+  KICK_MEMBER_SUCCESS,
+  KICK_MEMBER_FAILURE,
+  DELETE_GROUP_REQUEST,
+  DELETE_GROUP_SUCCESS,
+  DELETE_GROUP_FAILURE,
 } from './types';
 import { enqueueSnackbar } from 'notistack';
 
@@ -250,6 +262,29 @@ export const deleteActivityAction =
     }
   };
 
+// ===== DELETE ALL ACTIVITIES =====
+export const deleteAllActivitiesAction =
+  (groupId: string | number, onSuccess?: () => void, onError?: (msg: string) => void) =>
+  async (dispatch: any) => {
+    dispatch({ type: DELETE_ALL_ACTIVITIES_REQUEST });
+    try {
+      const { response, error } = await apiCall({
+        method: 'DELETE',
+        url: ENDPOINTS.ACTIVITY.DELETE_ALL(groupId),
+      });
+      if (response?.status === 200) {
+        dispatch({ type: DELETE_ALL_ACTIVITIES_SUCCESS });
+        if (onSuccess) onSuccess();
+      } else {
+        const errMsg = error || response?.data?.error || 'Lỗi khi xóa lịch trình';
+        dispatch({ type: DELETE_ALL_ACTIVITIES_FAILURE, payload: errMsg });
+        if (onError) onError(errMsg);
+      }
+    } catch (err: any) {
+      dispatch({ type: DELETE_ALL_ACTIVITIES_FAILURE, payload: err.message });
+      if (onError) onError(err.message);
+    }
+  };
   export const regenerateAiAction =
   (groupId: string | number, onSuccess?: () => void, onError?: (msg: string) => void) =>
   async (dispatch: any) => {
@@ -535,5 +570,83 @@ export const fetchSuggestionsAction =
     } catch (err: any) {
       dispatch({ type: FETCH_SUGGESTIONS_FAILURE, payload: err.message || 'Lỗi hệ thống' });
       return [];
+    }
+  };
+
+// ===== UPDATE GROUP =====
+export const updateGroupAction =
+  (groupId: string | number, data: any, onSuccess?: () => void, onError?: (msg: string) => void) =>
+  async (dispatch: any) => {
+    dispatch({ type: UPDATE_GROUP_REQUEST });
+    try {
+      const { response, error } = await apiCall({
+        method: 'PUT',
+        url: ENDPOINTS.GROUP.UPDATE(groupId),
+        payload: data,
+      });
+      if (response?.status === 200) {
+        dispatch({ type: UPDATE_GROUP_SUCCESS });
+        if (onSuccess) onSuccess();
+        dispatch(fetchGroupDetailAction(groupId) as any);
+      } else {
+        const errMsg = error || response?.data?.error || 'Lỗi khi cập nhật nhóm';
+        dispatch({ type: UPDATE_GROUP_FAILURE, payload: errMsg });
+        if (onError) onError(errMsg);
+      }
+    } catch (err: any) {
+      const errMsg = err.message || 'Lỗi hệ thống';
+      dispatch({ type: UPDATE_GROUP_FAILURE, payload: errMsg });
+      if (onError) onError(errMsg);
+    }
+  };
+
+// ===== KICK MEMBER =====
+export const kickMemberAction =
+  (groupId: string | number, userId: string | number, onSuccess?: () => void, onError?: (msg: string) => void) =>
+  async (dispatch: any) => {
+    dispatch({ type: KICK_MEMBER_REQUEST });
+    try {
+      const { response, error } = await apiCall({
+        method: 'DELETE',
+        url: ENDPOINTS.GROUP.KICK_MEMBER(groupId, userId),
+      });
+      if (response?.status === 200) {
+        dispatch({ type: KICK_MEMBER_SUCCESS });
+        if (onSuccess) onSuccess();
+        dispatch(fetchGroupDetailAction(groupId) as any);
+      } else {
+        const errMsg = error || response?.data?.error || 'Lỗi khi xóa thành viên';
+        dispatch({ type: KICK_MEMBER_FAILURE, payload: errMsg });
+        if (onError) onError(errMsg);
+      }
+    } catch (err: any) {
+      const errMsg = err.message || 'Lỗi hệ thống';
+      dispatch({ type: KICK_MEMBER_FAILURE, payload: errMsg });
+      if (onError) onError(errMsg);
+    }
+  };
+
+// ===== DELETE GROUP =====
+export const deleteGroupAction =
+  (groupId: string | number, onSuccess?: () => void, onError?: (msg: string) => void) =>
+  async (dispatch: any) => {
+    dispatch({ type: DELETE_GROUP_REQUEST });
+    try {
+      const { response, error } = await apiCall({
+        method: 'DELETE',
+        url: ENDPOINTS.GROUP.DELETE(groupId),
+      });
+      if (response?.status === 200) {
+        dispatch({ type: DELETE_GROUP_SUCCESS });
+        if (onSuccess) onSuccess();
+      } else {
+        const errMsg = error || response?.data?.error || 'Lỗi khi xóa nhóm';
+        dispatch({ type: DELETE_GROUP_FAILURE, payload: errMsg });
+        if (onError) onError(errMsg);
+      }
+    } catch (err: any) {
+      const errMsg = err.message || 'Lỗi hệ thống';
+      dispatch({ type: DELETE_GROUP_FAILURE, payload: errMsg });
+      if (onError) onError(errMsg);
     }
   };

@@ -64,9 +64,6 @@ export default function DaySelector({ days, selectedDate, onSelectDate }: Props)
 
       {/* Hành động: Filter & Export */}
       <Stack direction="row" spacing={1} sx={{ pl: 2 }}>
-        <IconButton sx={{ color: 'grey.500' }}>
-          <FilterListIcon />
-        </IconButton>
         <Button 
           variant="text" 
           startIcon={<IosShareIcon />}
@@ -80,7 +77,7 @@ export default function DaySelector({ days, selectedDate, onSelectDate }: Props)
             '&:hover': { bgcolor: '#bbf7d0' }
           }}
         >
-          Export
+          Xuất
         </Button>
       </Stack>
     </Stack>

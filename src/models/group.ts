@@ -5,11 +5,11 @@ export interface Group {
   start_date: string;
   end_date: string;
   invite_code?: string;
-  // ... thêm các trường khác trả về từ DB nếu cần
-  route_destinations?: string;       // Ví dụ: "Hà Nội, Sóc Sơn, Huế"
+  departure_location?: string;
+  route_destinations?: string;
   accommodation_pref?: 'HOTEL' | 'CAMPING' | 'MIXED';
   expected_members?: number;
   budget_per_person?: number;
-  currency?: string;                 // "VND" hoặc "USD"
+  currency?: string;
   is_ai_generating?: boolean;
 }

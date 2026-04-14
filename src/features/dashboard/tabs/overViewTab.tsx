@@ -11,7 +11,6 @@ import {
   Card,
   CardMedia,
   CardContent,
-  AvatarGroup,
   Avatar,
   CircularProgress,
 } from '@mui/material';
@@ -118,14 +117,7 @@ const OverviewTab = () => {
           {/* RENDER DỮ LIỆU THẬT */}
           {groups.map((group: any) => {
             const status = getTripStatus(group.start_date, group.end_date);
-            // Tạm dùng 1 mảng ảnh tĩnh để random theo ID cho UI đỡ trống
-            const defaultImages = [
-              'https://images.unsplash.com/photo-1596422846543-74c6e271a9ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-              'https://images.unsplash.com/photo-1583417311718-c287bd5798aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-              'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-              'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-            ];
-            const coverImage = defaultImages[(group.id || 0) % defaultImages.length];
+            const coverImage = `https://picsum.photos/seed/${group.id}/600/300`;
 
             return (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={group.id}>
@@ -214,20 +206,46 @@ const OverviewTab = () => {
                         mt: 'auto',
                       }}
                     >
-                      {/* Tạm thời hiển thị Avatar tĩnh, sau này có API user detail sẽ lấy thật */}
-                      <AvatarGroup
-                        max={4}
-                        sx={{
-                          '& .MuiAvatar-root': {
-                            width: 32,
-                            height: 32,
-                            fontSize: 12,
-                            border: '2px solid white',
-                          },
-                        }}
-                      >
-                        <Avatar sx={{ bgcolor: '#e2e8f0', color: '#334155' }}>M</Avatar>
-                      </AvatarGroup>
+                      {/* Avatar members: hiện tối đa 3, dư thì +N */}
+                      {(() => {
+                        const total = group.expected_members || 1;
+                        const shown = Math.min(total, 3);
+                        const extra = total - shown;
+                        return (
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {Array.from({ length: shown }).map((_, i) => (
+                              <Avatar
+                                key={i}
+                                src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${group.id}_member_${i}`}
+                                sx={{
+                                  width: 32,
+                                  height: 32,
+                                  fontSize: 12,
+                                  border: '2px solid white',
+                                  ml: i === 0 ? 0 : -1,
+                                  bgcolor: '#e2e8f0',
+                                }}
+                              />
+                            ))}
+                            {extra > 0 && (
+                              <Avatar
+                                sx={{
+                                  width: 32,
+                                  height: 32,
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  border: '2px solid white',
+                                  ml: -1,
+                                  bgcolor: '#e2e8f0',
+                                  color: '#475569',
+                                }}
+                              >
+                                +{extra}
+                              </Avatar>
+                            )}
+                          </Box>
+                        );
+                      })()}
 
                       <IconButton sx={{ bgcolor: '#f1f5f9', '&:hover': { bgcolor: '#e2e8f0' } }}>
                         <ArrowForward fontSize="small" sx={{ color: '#111814' }} />

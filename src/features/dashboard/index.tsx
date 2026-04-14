@@ -109,11 +109,10 @@ const Dashboard = () => {
                 </Badge>
               </IconButton>
               <Avatar
-                sx={{ bgcolor: '#0f766e', cursor: 'pointer', width: 36, height: 36 }}
+                src={profile?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(profile?.full_name || 'User')}&backgroundColor=0f766e`}
+                sx={{ cursor: 'pointer', width: 36, height: 36 }}
                 onClick={(e) => setAnchorEl(e.currentTarget)}
-              >
-                H
-              </Avatar>
+              />
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}

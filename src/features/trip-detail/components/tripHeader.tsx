@@ -83,8 +83,7 @@ export default function TripHeader() {
           sx={{
             position: 'absolute',
             inset: 0,
-            // 🌟 Ông thay URL ảnh tĩnh hoặc ảnh động từ groupDetail vào đây nhé
-            backgroundImage: 'url(https://images.unsplash.com/photo-1509316785289-025f5b846b35?q=80&w=2076)', 
+            backgroundImage: `url(https://picsum.photos/seed/${groupDetail.id}/1200/400)`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -133,7 +132,11 @@ export default function TripHeader() {
         >
           <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 32, height: 32, fontSize: '0.875rem', borderColor: 'rgba(255,255,255,0.2)' } }}>
             {members?.map((m: any) => (
-              <Avatar key={m.id} src={m.avatar} alt={m.full_name} />
+              <Avatar
+                key={m.id}
+                src={m.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(m.full_name)}&backgroundColor=0f766e`}
+                alt={m.full_name}
+              />
             ))}
           </AvatarGroup>
           <Button
