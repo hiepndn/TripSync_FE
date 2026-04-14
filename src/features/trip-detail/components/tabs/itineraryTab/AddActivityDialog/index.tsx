@@ -27,6 +27,7 @@ import { Activity } from '@/models/activity';
 // 🌟 Import cả 2 action Add và Update
 import { addActivityAction, updateActivityAction } from '@/features/trip-detail/redux/action';
 import SuggestionsPanel, { SuggestionItem } from './SuggestionsPanel';
+import LocationAutocomplete from '@/components/LocationAutocomplete';
 
 // 🌟 Định nghĩa Props siêu chặt chẽ
 interface Props {
@@ -49,6 +50,7 @@ const ActivityDialog: React.FC<Props> = ({
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
+  const [selectedLatLng, setSelectedLatLng] = useState<{ lat: number; lng: number } | null>(null);
 
   const isEdit = mode === 'edit';
 
@@ -75,8 +77,12 @@ const ActivityDialog: React.FC<Props> = ({
       }
       return errors;
     },
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: async (values, { resetForm }) => {
       setLoading(true);
+
+      // Dùng tọa độ từ autocomplete nếu có, không geocode mù
+      const lat = isEdit ? (activity?.lat ?? 0) : (selectedLatLng?.lat ?? 0);
+      const lng = isEdit ? (activity?.lng ?? 0) : (selectedLatLng?.lng ?? 0);
 
       const payload = {
         name: values.name,
@@ -85,8 +91,8 @@ const ActivityDialog: React.FC<Props> = ({
         description: values.description,
         start_time: values.start_time.format(),
         end_time: values.end_time.format(),
-        lat: isEdit ? activity?.lat : 0,
-        lng: isEdit ? activity?.lng : 0,
+        lat,
+        lng,
         place_id: isEdit ? activity?.place_id : '',
       };
 
@@ -200,24 +206,31 @@ const ActivityDialog: React.FC<Props> = ({
                   name="type"
                   value={formik.values.type}
                   onChange={formik.handleChange}
-                  fullWidth
-                  sx={inputStyle}
+                  sx={{ ...inputStyle, flex: 2 }}
                 >
                   <MenuItem value="ATTRACTION">Tham quan / Vui chơi</MenuItem>
                   <MenuItem value="RESTAURANT">Ăn uống</MenuItem>
                   <MenuItem value="HOTEL">Khách sạn / Lưu trú</MenuItem>
                   <MenuItem value="CAMPING">Cắm trại</MenuItem>
+                  <MenuItem value="TRANSPORT">Di chuyển / Phương tiện</MenuItem>
                 </TextField>
-                <TextField
-                  label="Địa điểm"
-                  name="location"
-                  value={formik.values.location}
-                  onChange={formik.handleChange}
-                  error={Boolean(formik.errors.location)}
-                  helperText={formik.errors.location as string}
-                  fullWidth
-                  sx={inputStyle}
-                />
+                <Box sx={{ flex: 2 }}>
+                  <LocationAutocomplete
+                    label="Địa điểm"
+                    value={formik.values.location || ''}
+                    onChange={(val) => {
+                      formik.setFieldValue('location', val);
+                      // Reset tọa độ khi user gõ lại thủ công
+                      setSelectedLatLng(null);
+                    }}
+                    onSelect={(result) => {
+                      formik.setFieldValue('location', result.name);
+                      setSelectedLatLng({ lat: result.lat, lng: result.lng });
+                    }}
+                    error={Boolean(formik.errors.location)}
+                    helperText={formik.errors.location as string}
+                  />
+                </Box>
               </Stack>
               <Stack direction="row" spacing={2}>
                 <TimePicker

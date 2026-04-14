@@ -27,6 +27,7 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AttractionsIcon from '@mui/icons-material/Attractions';
 import CampingIcon from '@mui/icons-material/NightShelter';
+import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -52,6 +53,7 @@ const typeIcon: Record<string, React.ReactNode> = {
   RESTAURANT: <RestaurantIcon />,
   ATTRACTION: <AttractionsIcon />,
   CAMPING: <CampingIcon />,
+  TRANSPORT: <DirectionsBusIcon />,
 };
 
 // =====================================================================
