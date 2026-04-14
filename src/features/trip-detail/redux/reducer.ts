@@ -93,7 +93,7 @@ export const tripDetailReducer = (state = initialState, action: any): TripDetail
   switch (action.type) {
     // ===== GROUP DETAIL =====
     case FETCH_GROUP_DETAIL_REQUEST:
-      return { ...state, loading: true, error: null };
+      return { ...state, loading: true, error: null, activities: [], groupDetail: null, members: [], myRole: null };
 
     // payload = { group_info: {...}, members: [...], my_role: "ADMIN" }
     case FETCH_GROUP_DETAIL_SUCCESS:

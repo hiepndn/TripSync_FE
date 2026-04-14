@@ -26,6 +26,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { Activity } from '@/models/activity';
 // 🌟 Import cả 2 action Add và Update
 import { addActivityAction, updateActivityAction } from '@/features/trip-detail/redux/action';
+import SuggestionsPanel, { SuggestionItem } from './SuggestionsPanel';
 
 // 🌟 Định nghĩa Props siêu chặt chẽ
 interface Props {
@@ -251,6 +252,20 @@ const ActivityDialog: React.FC<Props> = ({
                 rows={3}
                 sx={inputStyle}
               />
+
+              {!isEdit && (
+                <SuggestionsPanel
+                  groupId={groupId}
+                  activityType={formik.values.type || ''}
+                  location={formik.values.location || ''}
+                  onSelect={(s: SuggestionItem) => {
+                    formik.setFieldValue('name', s.name);
+                    formik.setFieldValue('type', s.type);
+                    formik.setFieldValue('location', s.location);
+                    formik.setFieldValue('description', s.description || '');
+                  }}
+                />
+              )}
             </Stack>
           </DialogContent>
 

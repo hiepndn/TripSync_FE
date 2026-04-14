@@ -20,6 +20,9 @@ export interface Activity {
   votes: any[] | null;
   vote_count: number;
   has_voted: boolean;
+  // Ratings
+  average_user_rating: number;
+  my_rating: number;
   // Timestamps
   lat: number;
   lng: number;

@@ -56,6 +56,12 @@ import {
   DELETE_CHECKLIST_FAILURE,
   DELETE_CHECKLIST_REQUEST,
   DELETE_CHECKLIST_SUCCESS,
+  RATE_ACTIVITY_REQUEST,
+  RATE_ACTIVITY_SUCCESS,
+  RATE_ACTIVITY_FAILURE,
+  FETCH_SUGGESTIONS_REQUEST,
+  FETCH_SUGGESTIONS_SUCCESS,
+  FETCH_SUGGESTIONS_FAILURE,
 } from './types';
 import { enqueueSnackbar } from 'notistack';
 
@@ -474,3 +480,60 @@ export const deleteChecklistAction = (groupId: string | number, itemId: number, 
     enqueueSnackbar(errMsg, { variant: 'error', autoHideDuration: 3000 });
   }
 };
+
+// ===== RATE ACTIVITY =====
+export const rateActivityAction =
+  (
+    groupId: string | number,
+    activityId: string | number,
+    rating: number,
+    onSuccess?: () => void,
+    onError?: (msg: string) => void,
+  ) =>
+  async (dispatch: any) => {
+    dispatch({ type: RATE_ACTIVITY_REQUEST });
+    try {
+      const { response, error } = await apiCall({
+        method: 'POST',
+        url: ENDPOINTS.ACTIVITY.RATE(groupId, activityId),
+        payload: { rating },
+      });
+
+      if (response?.status === 200) {
+        dispatch({ type: RATE_ACTIVITY_SUCCESS });
+        if (onSuccess) onSuccess();
+        dispatch(fetchActivitiesAction(groupId, true) as any);
+      } else {
+        const errMsg = error || response?.data?.error || 'Lỗi khi đánh giá hoạt động';
+        dispatch({ type: RATE_ACTIVITY_FAILURE, payload: errMsg });
+        if (onError) onError(errMsg);
+      }
+    } catch (err: any) {
+      const errMsg = err.message || 'Lỗi hệ thống';
+      dispatch({ type: RATE_ACTIVITY_FAILURE, payload: errMsg });
+      if (onError) onError(errMsg);
+    }
+  };
+
+// ===== FETCH SUGGESTIONS =====
+export const fetchSuggestionsAction =
+  (groupId: string | number, type: string, location: string) =>
+  async (dispatch: any) => {
+    dispatch({ type: FETCH_SUGGESTIONS_REQUEST });
+    try {
+      const url = `${ENDPOINTS.ACTIVITY.SUGGESTIONS(groupId)}?type=${encodeURIComponent(type)}&location=${encodeURIComponent(location)}`;
+      const { response, error } = await apiCall({ method: 'GET', url });
+
+      if (response?.status === 200) {
+        const data = response.data?.data ?? [];
+        dispatch({ type: FETCH_SUGGESTIONS_SUCCESS, payload: data });
+        return data;
+      } else {
+        dispatch({ type: FETCH_SUGGESTIONS_FAILURE, payload: error || 'Lỗi khi lấy gợi ý' });
+        return [];
+      }
+    } catch (err: any) {
+      dispatch({ type: FETCH_SUGGESTIONS_FAILURE, payload: err.message || 'Lỗi hệ thống' });
+      return [];
+    }
+  };

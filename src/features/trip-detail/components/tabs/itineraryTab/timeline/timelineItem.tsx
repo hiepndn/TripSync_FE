@@ -45,6 +45,7 @@ import ActivityDialog from '../AddActivityDialog';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
 import { useSnackbar } from 'notistack';
+import StarRatingWidget from './StarRatingWidget';
 
 const typeIcon: Record<string, React.ReactNode> = {
   HOTEL: <HotelIcon />,
@@ -246,6 +247,13 @@ const ActivityTimelineItem = ({
                   ⭐ {act.rating}
                 </Typography>
               )}
+
+              <StarRatingWidget
+                groupId={groupId}
+                activityId={act.id}
+                myRating={act.my_rating ?? 0}
+                averageUserRating={act.average_user_rating ?? 0}
+              />
 
               <Stack direction="row" spacing={1} alignItems="center" mt={1.5}>
                 {isApproved && (

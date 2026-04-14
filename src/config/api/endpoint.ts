@@ -20,6 +20,10 @@ export const ENDPOINTS = {
       `/api/groups/${groupId}/activities/${activityId}`,
     DELETE: (groupId: string | number, activityId: string | number) =>
       `/api/groups/${groupId}/activities/${activityId}`,
+    RATE: (groupId: string | number, activityId: string | number) =>
+      `/api/groups/${groupId}/activities/${activityId}/rate`,
+    SUGGESTIONS: (groupId: string | number) =>
+      `/api/groups/${groupId}/activities/suggestions`,
   },
   USER: {
     GET_PROFILE: '/api/auth/me',

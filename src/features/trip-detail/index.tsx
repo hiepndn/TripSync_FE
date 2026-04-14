@@ -47,8 +47,61 @@ export default function TripDetailIndex() {
   // Đang fetch lần đầu: chưa có groupDetail → show spinner
   if (loading && !groupDetail) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <CircularProgress sx={{ color: '#19e66b' }} />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          gap: 2,
+        }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Vòng ngoài mờ */}
+          <CircularProgress
+            size={64}
+            thickness={2}
+            sx={{ color: '#d1fae5', position: 'absolute' }}
+            variant="determinate"
+            value={100}
+          />
+          {/* Vòng trong chạy */}
+          <CircularProgress
+            size={64}
+            thickness={3}
+            sx={{
+              color: '#19e66b',
+              animationDuration: '900ms',
+            }}
+          />
+        </Box>
+        <Box sx={{ textAlign: 'center' }}>
+          <Box
+            sx={{
+              fontSize: '0.9rem',
+              fontWeight: 600,
+              color: '#374151',
+              letterSpacing: '0.02em',
+            }}
+          >
+            Đang tải chuyến đi...
+          </Box>
+          <Box sx={{ fontSize: '0.78rem', color: '#9ca3af', mt: 0.5 }}>
+            Vui lòng chờ trong giây lát
+          </Box>
+        </Box>
       </Box>
     );
   }
