@@ -74,6 +74,12 @@ import {
   DELETE_GROUP_REQUEST,
   DELETE_GROUP_SUCCESS,
   DELETE_GROUP_FAILURE,
+  FETCH_DOCUMENTS_REQUEST,
+  FETCH_DOCUMENTS_SUCCESS,
+  FETCH_DOCUMENTS_FAILURE,
+  DELETE_DOCUMENT_REQUEST,
+  DELETE_DOCUMENT_SUCCESS,
+  DELETE_DOCUMENT_FAILURE,
 } from './types';
 import { enqueueSnackbar } from 'notistack';
 
@@ -647,6 +653,49 @@ export const deleteGroupAction =
     } catch (err: any) {
       const errMsg = err.message || 'Lỗi hệ thống';
       dispatch({ type: DELETE_GROUP_FAILURE, payload: errMsg });
+      if (onError) onError(errMsg);
+    }
+  };
+
+// ===== FETCH DOCUMENTS =====
+export const fetchDocumentsAction = (groupId: string | number) => async (dispatch: any) => {
+  dispatch({ type: FETCH_DOCUMENTS_REQUEST });
+  try {
+    const { response, error } = await apiCall({
+      method: 'GET',
+      url: ENDPOINTS.DOCUMENT.LIST(groupId),
+    });
+    if (response?.status === 200) {
+      dispatch({ type: FETCH_DOCUMENTS_SUCCESS, payload: response.data.data ?? [] });
+    } else {
+      dispatch({ type: FETCH_DOCUMENTS_FAILURE, payload: error || 'Lỗi khi lấy danh sách tài liệu' });
+    }
+  } catch (err: any) {
+    dispatch({ type: FETCH_DOCUMENTS_FAILURE, payload: err.message || 'Lỗi hệ thống' });
+  }
+};
+
+// ===== DELETE DOCUMENT =====
+export const deleteDocumentAction =
+  (groupId: string | number, docId: string | number, onSuccess?: () => void, onError?: (msg: string) => void) =>
+  async (dispatch: any) => {
+    dispatch({ type: DELETE_DOCUMENT_REQUEST });
+    try {
+      const { response, error } = await apiCall({
+        method: 'DELETE',
+        url: ENDPOINTS.DOCUMENT.DELETE(groupId, docId),
+      });
+      if (response?.status === 200) {
+        dispatch({ type: DELETE_DOCUMENT_SUCCESS, payload: docId });
+        if (onSuccess) onSuccess();
+      } else {
+        const errMsg = error || response?.data?.error || 'Lỗi khi xóa tài liệu';
+        dispatch({ type: DELETE_DOCUMENT_FAILURE, payload: errMsg });
+        if (onError) onError(errMsg);
+      }
+    } catch (err: any) {
+      const errMsg = err.message || 'Lỗi hệ thống';
+      dispatch({ type: DELETE_DOCUMENT_FAILURE, payload: errMsg });
       if (onError) onError(errMsg);
     }
   };

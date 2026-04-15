@@ -13,6 +13,7 @@ import AiGeneratingBanner from './components/aiGeneratingBanner';
 import ExpenseTab from './components/tabs/expenseTab';
 import ChecklistTab from './components/tabs/checklistTab';
 import OverviewTab from './components/tabs/overviewTab';
+import DocumentsTab from './components/tabs/documentsTab';
 
 export default function TripDetailIndex() {
   const { id } = useParams<{ id: string }>();
@@ -125,6 +126,7 @@ export default function TripDetailIndex() {
               {activeTab === 'expenses' && <ExpenseTab />}
               {activeTab === 'checklist' && <ChecklistTab />}
               {activeTab === 'overview' && <OverviewTab />}
+              {activeTab === 'files' && <DocumentsTab />}
             </>
           )}
         </Box>

@@ -21,6 +21,7 @@
     "@mui/x-date-pickers": "^8.27.2",
     "@react-google-maps/api": "^2.20.8",
     "@reduxjs/toolkit": "^2.11.2",
+    "@supabase/supabase-js": "2.103.2",
     "@types/leaflet": "^1.9.21",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
@@ -37,6 +38,7 @@
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.11.0",
+    "uuid": "^9.0.1",
     "yup": "^1.7.1"
   },
   "devDependencies": {
@@ -46,6 +48,7 @@
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^19.2.3",
     "@types/react-router-dom": "^5.3.3",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
     "@vitejs/plugin-react": "^5.1.1",

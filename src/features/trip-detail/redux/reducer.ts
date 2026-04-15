@@ -63,6 +63,12 @@ import {
   DELETE_ALL_ACTIVITIES_REQUEST,
   DELETE_ALL_ACTIVITIES_SUCCESS,
   DELETE_ALL_ACTIVITIES_FAILURE,
+  FETCH_DOCUMENTS_REQUEST,
+  FETCH_DOCUMENTS_SUCCESS,
+  FETCH_DOCUMENTS_FAILURE,
+  DELETE_DOCUMENT_REQUEST,
+  DELETE_DOCUMENT_SUCCESS,
+  DELETE_DOCUMENT_FAILURE,
 } from './types';
 
 interface TripDetailState {
@@ -81,6 +87,9 @@ interface TripDetailState {
   error: string | null;
   checklist: any[];
   checklistLoading: boolean;
+  documents: any[];
+  documentsLoading: boolean;
+  documentsError: string | null;
 }
 
 const initialState: TripDetailState = {
@@ -99,6 +108,9 @@ const initialState: TripDetailState = {
   error: null,
   checklist: [],
   checklistLoading: false,
+  documents: [],
+  documentsLoading: false,
+  documentsError: null,
 };
 
 export const tripDetailReducer = (state = initialState, action: any): TripDetailState => {
@@ -275,6 +287,30 @@ export const tripDetailReducer = (state = initialState, action: any): TripDetail
     case KICK_MEMBER_FAILURE:
     case DELETE_GROUP_FAILURE:
       return { ...state, error: action.payload };
+
+    // ==========================================
+    // DOCUMENTS
+    // ==========================================
+    case FETCH_DOCUMENTS_REQUEST:
+      return { ...state, documentsLoading: true, documentsError: null };
+
+    case FETCH_DOCUMENTS_SUCCESS:
+      return { ...state, documentsLoading: false, documents: action.payload ?? [] };
+
+    case FETCH_DOCUMENTS_FAILURE:
+      return { ...state, documentsLoading: false, documentsError: action.payload };
+
+    case DELETE_DOCUMENT_REQUEST:
+      return { ...state, documentsError: null };
+
+    case DELETE_DOCUMENT_SUCCESS:
+      return {
+        ...state,
+        documents: state.documents.filter((doc: any) => doc.id !== Number(action.payload)),
+      };
+
+    case DELETE_DOCUMENT_FAILURE:
+      return { ...state, documentsError: action.payload };
 
     default:
       return state;

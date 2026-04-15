@@ -46,4 +46,9 @@ export const ENDPOINTS = {
     ASSIGN: (groupId: string | number, itemId: string | number) => `/api/groups/${groupId}/checklist/${itemId}/assign`,
     DELETE: (groupId: string | number, itemId: string | number) => `/api/groups/${groupId}/checklist/${itemId}`,
   },
+  DOCUMENT: {
+    LIST: (groupId: string | number) => `/api/groups/${groupId}/documents`,
+    CREATE: (groupId: string | number) => `/api/groups/${groupId}/documents`,
+    DELETE: (groupId: string | number, docId: string | number) => `/api/groups/${groupId}/documents/${docId}`,
+  },
 };
