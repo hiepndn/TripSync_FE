@@ -59,7 +59,7 @@ export default function ItineraryTab() {
   const filteredActivities: Activity[] = useMemo(() => {
     if (!selectedDate) return activities;
     return activities.filter((act: Activity) =>
-      dayjs.utc(act.start_time).format('YYYY-MM-DD') === selectedDate
+      dayjs(act.start_time).format('YYYY-MM-DD') === selectedDate
     );
   }, [activities, selectedDate]);
 

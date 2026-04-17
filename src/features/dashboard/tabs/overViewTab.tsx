@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -13,6 +13,8 @@ import {
   CardContent,
   Avatar,
   CircularProgress,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import {
   GroupAdd,
@@ -21,7 +23,11 @@ import {
   CalendarToday,
   ArrowForward,
   Add,
+  AccessTime,
+  FlightTakeoff,
+  CheckCircleOutline,
 } from '@mui/icons-material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useSnackbar } from 'notistack';
 import AddGroupDialog from './components/addGroupDialog';
 import { useAppSelector } from '@/app/store';
@@ -29,12 +35,17 @@ import { fetchGroupsAction } from '../redux/action';
 import { useDispatch } from 'react-redux';
 import JoinGroupDialog from './components/joinGroupDialog';
 import { useNavigate } from 'react-router-dom';
+import ImportItineraryDialog from '@/components/ImportItineraryDialog';
+
+type TripFilter = 'all' | 'upcoming' | 'ongoing' | 'ended';
 
 const OverviewTab = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openJoinModal, setOpenJoinModal] = useState(false);
+  const [openImportModal, setOpenImportModal] = useState(false);
+  const [filter, setFilter] = useState<TripFilter>('all');
   const { enqueueSnackbar } = useSnackbar();
 
   // Lấy data thật từ Redux
@@ -54,10 +65,22 @@ const OverviewTab = () => {
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
 
-    if (now > endDate) return { label: 'Đã kết thúc', color: 'default', isActive: false };
+    if (now > endDate) return { label: 'Đã kết thúc', color: 'default', isActive: false, key: 'ended' };
     if (now >= startDate && now <= endDate)
-      return { label: 'Đang diễn ra', color: 'success', isActive: true };
-    return { label: 'Sắp diễn ra', color: 'warning', isActive: false };
+      return { label: 'Đang diễn ra', color: 'success', isActive: true, key: 'ongoing' };
+    return { label: 'Sắp diễn ra', color: 'warning', isActive: false, key: 'upcoming' };
+  };
+
+  const filteredGroups = groups.filter((group: any) => {
+    if (filter === 'all') return true;
+    return getTripStatus(group.start_date, group.end_date).key === filter;
+  });
+
+  const counts = {
+    all: groups.length,
+    upcoming: groups.filter((g: any) => getTripStatus(g.start_date, g.end_date).key === 'upcoming').length,
+    ongoing: groups.filter((g: any) => getTripStatus(g.start_date, g.end_date).key === 'ongoing').length,
+    ended: groups.filter((g: any) => getTripStatus(g.start_date, g.end_date).key === 'ended').length,
   };
 
   return (
@@ -96,6 +119,19 @@ const OverviewTab = () => {
             Tham gia nhóm
           </Button>
           <Button
+            variant="outlined"
+            startIcon={<FileDownloadIcon />}
+            sx={{
+              color: '#111814',
+              borderColor: '#cbd5e1',
+              fontWeight: 600,
+              textTransform: 'none',
+            }}
+            onClick={() => setOpenImportModal(true)}
+          >
+            Import lịch trình
+          </Button>
+          <Button
             variant="contained"
             startIcon={<AddLocationAlt />}
             onClick={() => setOpenCreateModal(true)}
@@ -106,6 +142,47 @@ const OverviewTab = () => {
         </Stack>
       </Box>
 
+      {/* Filter Tabs */}
+      <Tabs
+        value={filter}
+        onChange={(_, val) => setFilter(val)}
+        sx={{
+          mb: 4,
+          borderBottom: '1px solid #e2e8f0',
+          '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: 14 },
+          '& .Mui-selected': { color: '#111814 !important' },
+          '& .MuiTabs-indicator': { bgcolor: '#19e66b', height: 3 },
+        }}
+      >
+        <Tab value="all" label={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <span>Tất cả</span>
+            <Chip label={counts.all} size="small" sx={{ height: 20, fontSize: 11 }} />
+          </Stack>
+        } />
+        <Tab value="upcoming" label={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <AccessTime sx={{ fontSize: 16 }} />
+            <span>Sắp diễn ra</span>
+            {counts.upcoming > 0 && <Chip label={counts.upcoming} size="small" color="warning" sx={{ height: 20, fontSize: 11 }} />}
+          </Stack>
+        } />
+        <Tab value="ongoing" label={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <FlightTakeoff sx={{ fontSize: 16 }} />
+            <span>Đang diễn ra</span>
+            {counts.ongoing > 0 && <Chip label={counts.ongoing} size="small" color="success" sx={{ height: 20, fontSize: 11 }} />}
+          </Stack>
+        } />
+        <Tab value="ended" label={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <CheckCircleOutline sx={{ fontSize: 16 }} />
+            <span>Đã kết thúc</span>
+            {counts.ended > 0 && <Chip label={counts.ended} size="small" sx={{ height: 20, fontSize: 11 }} />}
+          </Stack>
+        } />
+      </Tabs>
+
       {/* Loading State */}
       {loading && groups.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
@@ -115,7 +192,7 @@ const OverviewTab = () => {
         /* ===== CARDS GRID ===== */
         <Grid container spacing={3}>
           {/* RENDER DỮ LIỆU THẬT */}
-          {groups.map((group: any) => {
+          {filteredGroups.map((group: any) => {
             const status = getTripStatus(group.start_date, group.end_date);
             const coverImage = `https://picsum.photos/seed/${group.id}/600/300`;
 
@@ -305,6 +382,14 @@ const OverviewTab = () => {
 
       <AddGroupDialog open={openCreateModal} onClose={() => setOpenCreateModal(false)} onSuccess={onLoad}/>
       <JoinGroupDialog open={openJoinModal} onClose={() => setOpenJoinModal(false)} />
+      <ImportItineraryDialog
+        open={openImportModal}
+        onClose={() => setOpenImportModal(false)}
+        onSuccess={(count) => {
+          enqueueSnackbar(`Import thành công ${count} hoạt động!`, { variant: 'success' });
+          onLoad();
+        }}
+      />
     </Container>
   );
 };

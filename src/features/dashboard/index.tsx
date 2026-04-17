@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import OverviewTab from './tabs/overViewTab';
 import MyTripsTab from './tabs/myTripsTab';
 import ExploreTab from './tabs/exploreTab';
+import FavoritesTab from './tabs/favoritesTab';
 import { useDispatch } from 'react-redux';
 import { getProfileAction } from './redux/action';
 import { useAppSelector } from '@/app/store';
@@ -99,6 +100,9 @@ const Dashboard = () => {
               <Typography sx={getTabStyle(2)} onClick={() => setActiveTab(2)}>
                 Khám phá
               </Typography>
+              <Typography sx={getTabStyle(3)} onClick={() => setActiveTab(3)}>
+                Yêu thích
+              </Typography>
             </Stack>
 
             {/* User Actions */}
@@ -134,6 +138,7 @@ const Dashboard = () => {
         {activeTab === 0 && <OverviewTab />}
         {activeTab === 1 && <MyTripsTab />}
         {activeTab === 2 && <ExploreTab />}
+        {activeTab === 3 && <FavoritesTab />}
       </Box>
     </Box>
   );

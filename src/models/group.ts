@@ -12,4 +12,5 @@ export interface Group {
   budget_per_person?: number;
   currency?: string;
   is_ai_generating?: boolean;
+  role?: 'ADMIN' | 'MEMBER';
 }

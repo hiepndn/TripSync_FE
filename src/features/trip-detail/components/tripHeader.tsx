@@ -19,6 +19,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -27,6 +28,8 @@ import { useAppSelector, useAppDispatch } from '@/app/store';
 import { regenerateAiAction } from '@/features/trip-detail/redux/action';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
+import { apiCall } from '@/config/api';
+import { ENDPOINTS } from '@/config/api/endpoint';
 
 export default function TripHeader() {
   const navigate = useNavigate();
@@ -41,6 +44,7 @@ export default function TripHeader() {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [openInviteDialog, setOpenInviteDialog] = useState(false);
   const [copyTooltip, setCopyTooltip] = useState('Sao chép');
+  const [isExporting, setIsExporting] = useState(false);
 
   if (!groupDetail) return null;
 
@@ -64,6 +68,35 @@ export default function TripHeader() {
       setIsRegenerating(false);
       enqueueSnackbar('Lỗi: ' + err, { variant: 'error' });
     }) as any);
+  };
+
+  // 🌟 Hàm xuất lịch trình ra file JSON
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const { response } = await apiCall({
+        method: 'GET',
+        url: ENDPOINTS.ACTIVITY.EXPORT(groupDetail.id),
+      });
+      if (response?.status === 200) {
+        const blob = new Blob([JSON.stringify(response.data, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${groupDetail.name}_itinerary.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        enqueueSnackbar('Xuất lịch trình thành công!', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response?.data?.error ?? 'Xuất lịch trình thất bại', { variant: 'error' });
+      }
+    } catch {
+      enqueueSnackbar('Lỗi kết nối khi xuất lịch trình', { variant: 'error' });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -182,16 +215,44 @@ export default function TripHeader() {
         </Box>
 
         {/* ========================================== */}
-        {/* 🌟 GÓC DƯỚI PHẢI: Nút Chạy Lại AI (Đất vàng) */}
+        {/* 🌟 GÓC DƯỚI PHẢI: Nút Xuất lịch trình + Nút Chạy Lại AI (Đất vàng) */}
         {/* ========================================== */}
-        {isOwner && (
-          <Box sx={{ position: 'absolute', bottom: 24, right: 24 }}>
+        <Stack
+          direction="row"
+          spacing={1.5}
+          sx={{ position: 'absolute', bottom: 24, right: 24 }}
+        >
+          {/* Xuất lịch trình — visible to ALL members */}
+          <Button
+            variant="contained"
+            onClick={handleExport}
+            disabled={isExporting}
+            startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <FileUploadIcon />}
+            sx={{
+              bgcolor: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(12px)',
+              color: '#fff',
+              py: 1.2,
+              px: 2.5,
+              borderRadius: 3,
+              fontWeight: 700,
+              textTransform: 'none',
+              border: '1px solid rgba(255,255,255,0.2)',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' },
+              '&.Mui-disabled': { opacity: 0.6, color: '#fff' },
+            }}
+          >
+            Xuất lịch trình
+          </Button>
+
+          {/* Gợi ý lại AI — ADMIN only */}
+          {isOwner && (
             <Button
               variant="contained"
               onClick={() => setOpenAiDialog(true)}
               startIcon={<AutoAwesomeIcon sx={{ color: '#fbbf24' }} />}
               sx={{
-                bgcolor: 'rgba(17, 24, 39, 0.8)', // Nền tối trong suốt cực ngầu
+                bgcolor: 'rgba(17, 24, 39, 0.8)',
                 backdropFilter: 'blur(12px)',
                 color: '#fff',
                 py: 1.2,
@@ -201,13 +262,13 @@ export default function TripHeader() {
                 textTransform: 'none',
                 border: '1px solid rgba(255,255,255,0.1)',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
-                '&:hover': { bgcolor: 'rgba(17, 24, 39, 1)' }
+                '&:hover': { bgcolor: 'rgba(17, 24, 39, 1)' },
               }}
             >
               Gợi ý lại lịch trình AI
             </Button>
-          </Box>
-        )}
+          )}
+        </Stack>
       </Box>
 
       {/* ========================================== */}

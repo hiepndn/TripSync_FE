@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card, CardContent, Box, Typography, Grid, TextField,
-  Button, CircularProgress, Stack,
+  Button, CircularProgress, Stack, Switch, FormControlLabel, Divider,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PublicIcon from '@mui/icons-material/Public';
 import { useAppSelector, useAppDispatch } from '@/app/store';
 import { updateGroupAction } from '@/features/trip-detail/redux/action';
 import { useSnackbar } from 'notistack';
 import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { apiCall } from '@/config/api';
+import { ENDPOINTS } from '@/config/api/endpoint';
 
 export default function GroupInfoCard() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +29,8 @@ export default function GroupInfoCard() {
     description: '',
   });
   const [saving, setSaving] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
+  const [visibilityLoading, setVisibilityLoading] = useState(false);
 
   useEffect(() => {
     if (groupDetail) {
@@ -37,6 +42,7 @@ export default function GroupInfoCard() {
         end_date: groupDetail.end_date ? dayjs(groupDetail.end_date).format('YYYY-MM-DD') : '',
         description: groupDetail.description ?? '',
       });
+      setIsPublic(groupDetail.is_public ?? false);
     }
   }, [groupDetail]);
 
@@ -80,6 +86,34 @@ export default function GroupInfoCard() {
         },
       ) as any,
     );
+  };
+
+  const handleVisibilityToggle = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.checked;
+    setIsPublic(newValue);
+    setVisibilityLoading(true);
+    try {
+      const { response, error } = await apiCall({
+        method: 'PUT',
+        url: ENDPOINTS.GROUP.UPDATE_VISIBILITY(id!),
+        payload: { is_public: newValue },
+      });
+      if (response?.status === 200) {
+        enqueueSnackbar(
+          newValue ? 'Nhóm đã được công khai!' : 'Nhóm đã chuyển về chế độ riêng tư.',
+          { variant: 'success' },
+        );
+      } else {
+        // Revert on failure
+        setIsPublic(!newValue);
+        enqueueSnackbar(error || 'Không thể cập nhật chế độ công khai', { variant: 'error' });
+      }
+    } catch {
+      setIsPublic(!newValue);
+      enqueueSnackbar('Lỗi hệ thống', { variant: 'error' });
+    } finally {
+      setVisibilityLoading(false);
+    }
   };
 
   if (!groupDetail) return null;
@@ -198,6 +232,48 @@ export default function GroupInfoCard() {
             />
           </Grid>
         </Grid>
+
+        {/* Visibility Toggle — chỉ hiển thị cho ADMIN */}
+        {isAdmin && (
+          <>
+            <Divider sx={{ my: 3 }} />
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Stack direction="row" alignItems="center" spacing={1.5}>
+                <PublicIcon sx={{ color: isPublic ? '#19e66b' : '#9ca3af' }} />
+                <Box>
+                  <Typography fontWeight={600} fontSize="0.95rem">Công khai nhóm</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Cho phép cộng đồng xem lịch trình của bạn
+                  </Typography>
+                </Box>
+              </Stack>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isPublic}
+                    onChange={handleVisibilityToggle}
+                    disabled={visibilityLoading}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': { color: '#19e66b' },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#19e66b' },
+                    }}
+                  />
+                }
+                label={
+                  visibilityLoading ? (
+                    <CircularProgress size={16} sx={{ color: '#19e66b' }} />
+                  ) : (
+                    <Typography variant="body2" fontWeight={600} color={isPublic ? '#16a34a' : '#6b7280'}>
+                      {isPublic ? 'Công khai' : 'Riêng tư'}
+                    </Typography>
+                  )
+                }
+                labelPlacement="start"
+                sx={{ ml: 0 }}
+              />
+            </Stack>
+          </>
+        )}
       </CardContent>
     </Card>
   );

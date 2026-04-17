@@ -11,6 +11,9 @@ export const ENDPOINTS = {
     UPDATE: (id: string | number) => `/api/groups/${id}`,
     KICK_MEMBER: (groupId: string | number, userId: string | number) => `/api/groups/${groupId}/members/${userId}`,
     DELETE: (id: string | number) => `/api/groups/${id}`,
+    UPDATE_VISIBILITY: (id: string | number) => `/api/groups/${id}/visibility`,
+    PUBLIC_LIST: '/api/groups/public',
+    PUBLIC_DETAIL: (id: string | number) => `/api/groups/public/${id}`,
   },
   ACTIVITY: {
     LIST: (groupId: string | number) => `/api/groups/${groupId}/activity`,
@@ -28,9 +31,16 @@ export const ENDPOINTS = {
       `/api/groups/${groupId}/activities/${activityId}/rate`,
     SUGGESTIONS: (groupId: string | number) =>
       `/api/groups/${groupId}/activities/suggestions`,
+    EXPORT: (groupId: string | number) => `/api/groups/${groupId}/export`,
+    IMPORT: (groupId: string | number) => `/api/groups/${groupId}/import`,
+    IMPORT_JSON: (groupId: string | number) => `/api/groups/${groupId}/import-json`,
   },
   USER: {
     GET_PROFILE: '/api/auth/me',
+  },
+  FAVORITE: {
+    TOGGLE: (groupId: string | number) => `/api/groups/${groupId}/favorite`,
+    LIST: '/api/favorites',
   },
   EXPENSE: {
     CREATE: (groupId: string | number) => `/api/groups/${groupId}/expenses`,
