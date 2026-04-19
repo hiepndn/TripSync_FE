@@ -164,19 +164,34 @@ export const finalizeActivityAction =
     try {
       const { response, error } = await apiCall({
         method: 'PATCH',
-        url: ENDPOINTS.ACTIVITY.FINALIZE(groupId, activityId), // 🌟 Gọi hàm từ ENDPOINTS
+        url: ENDPOINTS.ACTIVITY.FINALIZE(groupId, activityId),
       });
-
-      if (response?.status === 200) { // 🌟 Chuẩn bài!
+      if (response?.status === 200) {
         dispatch({ type: FINALIZE_ACTIVITY_SUCCESS, payload: response.data?.data });
         if (onSuccess) onSuccess();
-        
         dispatch(fetchActivitiesAction(groupId, true) as any);
       } else {
         dispatch({ type: FINALIZE_ACTIVITY_FAILURE, payload: error || 'Lỗi khi chốt hoạt động' });
       }
     } catch (err: any) {
       dispatch({ type: FINALIZE_ACTIVITY_FAILURE, payload: err.message || 'Lỗi hệ thống' });
+    }
+  };
+
+// ===== UNFINALIZE (HỦY CHỐT) ACTIVITY =====
+export const unfinalizeActivityAction =
+  (groupId: string | number, activityId: string | number, onSuccess?: () => void) => async (dispatch: any) => {
+    try {
+      const { response } = await apiCall({
+        method: 'PATCH',
+        url: ENDPOINTS.ACTIVITY.UNFINALIZE(groupId, activityId),
+      });
+      if (response?.status === 200) {
+        if (onSuccess) onSuccess();
+        dispatch(fetchActivitiesAction(groupId, true) as any);
+      }
+    } catch {
+      // silent
     }
   };
 

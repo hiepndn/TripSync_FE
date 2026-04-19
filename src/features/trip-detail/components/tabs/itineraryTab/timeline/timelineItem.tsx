@@ -39,11 +39,12 @@ dayjs.extend(utc);
 import { Activity } from '@/models/activity';
 import { useAppDispatch } from '@/app/store';
 // 🌟 Nhớ import deleteActivityAction
-import { finalizeActivityAction, voteActivityAction, deleteActivityAction } from '@/features/trip-detail/redux/action';
+import { finalizeActivityAction, voteActivityAction, deleteActivityAction, unfinalizeActivityAction } from '@/features/trip-detail/redux/action';
 import { useAppSelector } from '@/app/store';
 import ActivityDialog from '../AddActivityDialog';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
+import ReplayIcon from '@mui/icons-material/Replay';
 import { useSnackbar } from 'notistack';
 import StarRatingWidget from './StarRatingWidget';
 import ConflictGroup from './ConflictGroup';
@@ -226,6 +227,17 @@ const ActivityTimelineItem = ({
                     {!isApproved && (
                       <MenuItem onClick={handleOpenEditDialog}>
                         <EditIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} /> Sửa
+                      </MenuItem>
+                    )}
+                    {isApproved && isOwner && (
+                      <MenuItem
+                        onClick={() => {
+                          handleCloseMenu();
+                          dispatch(unfinalizeActivityAction(groupId, act.id) as any);
+                        }}
+                        sx={{ color: '#d97706' }}
+                      >
+                        <ReplayIcon fontSize="small" sx={{ mr: 1 }} /> Hủy chốt
                       </MenuItem>
                     )}
                     {/* Chỉ Owner (ADMIN) hoặc người tạo mới được xóa */}

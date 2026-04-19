@@ -28,12 +28,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
+import ReplayIcon from '@mui/icons-material/Replay';
 import StarRatingWidget from './StarRatingWidget';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
 
 import { Activity } from '@/models/activity';
 import { useAppDispatch } from '@/app/store';
-import { finalizeActivityAction, voteActivityAction, deleteActivityAction } from '@/features/trip-detail/redux/action';
+import { finalizeActivityAction, voteActivityAction, deleteActivityAction, unfinalizeActivityAction } from '@/features/trip-detail/redux/action';
 import { useSnackbar } from 'notistack';
 import ActivityDialog from '../AddActivityDialog';
 
@@ -277,7 +278,9 @@ interface Props {
 }
 
 export default function ConflictGroup({ activities, isOwner, groupId, selectedDate }: Props) {
+  const dispatch = useAppDispatch();
   const [openAddModal, setOpenAddModal] = useState(false);
+  const [approvedMenuAnchor, setApprovedMenuAnchor] = useState<null | HTMLElement>(null);
 
   const maxVotes = Math.max(...activities.map((a) => a.vote_count ?? 0));
   const isLeading = (a: Activity) => (a.vote_count ?? 0) === maxVotes && maxVotes > 0;
@@ -319,6 +322,44 @@ export default function ConflictGroup({ activities, isOwner, groupId, selectedDa
                   </Typography>
                 )}
               </Box>
+              {isOwner && (
+                <>
+                  <IconButton size="small" onClick={(e) => setApprovedMenuAnchor(e.currentTarget)}>
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                  <Menu
+                    anchorEl={approvedMenuAnchor}
+                    open={Boolean(approvedMenuAnchor)}
+                    onClose={() => setApprovedMenuAnchor(null)}
+                    PaperProps={{ sx: { borderRadius: 3, boxShadow: '0px 8px 24px rgba(0,0,0,0.08)', mt: 0.5, minWidth: 160, p: 0.5 } }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        setApprovedMenuAnchor(null);
+                        dispatch(unfinalizeActivityAction(groupId, approvedActivity.id) as any);
+                      }}
+                      sx={{ color: '#d97706' }}
+                    >
+                      <ReplayIcon fontSize="small" sx={{ mr: 1 }} /> Hủy chốt
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        setApprovedMenuAnchor(null);
+                        // Xóa activity đã chốt
+                        dispatch(deleteActivityAction(
+                          groupId,
+                          approvedActivity.id,
+                          () => {},
+                          () => {}
+                        ) as any);
+                      }}
+                      sx={{ color: 'error.main' }}
+                    >
+                      <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> Xóa
+                    </MenuItem>
+                  </Menu>
+                </>
+              )}
             </Stack>
             {approvedActivity.description && (
               <Typography variant="body2" color="text.secondary" mt={0.5} mb={1}>

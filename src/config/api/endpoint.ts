@@ -20,6 +20,8 @@ export const ENDPOINTS = {
     CREATE: (groupId: string | number) => `/api/groups/${groupId}/activity`,
     FINALIZE: (groupId: string | number, activityId: string | number) =>
       `/api/groups/${groupId}/activities/${activityId}/finalize`,
+    UNFINALIZE: (groupId: string | number, activityId: string | number) =>
+      `/api/groups/${groupId}/activities/${activityId}/unfinalize`,
     VOTE: (groupId: string | number, activityId: string | number) =>
       `/api/groups/${groupId}/activities/${activityId}/vote`,
     UPDATE: (groupId: string | number, activityId: string | number) =>
