@@ -32,7 +32,7 @@ export default function ExpenseSummary() {
         <Card sx={cardStyle}>
           <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Tổng chi tiêu</Typography>
           {summaryLoading ? <Skeleton variant="text" width="60%" height={40} /> : (
-            <Typography variant="h5" fontWeight={800} mt={1}>{formatMoney(totalSpent)} <Typography component="span" variant="body2" color="text.secondary" fontWeight={600}>{currency}</Typography></Typography>
+            <Typography variant="h5" fontWeight={700} mt={1}>{formatMoney(totalSpent)} <Typography component="span" variant="body2" color="text.secondary" fontWeight={600}>{currency}</Typography></Typography>
           )}
         </Card>
       </Grid>
@@ -40,7 +40,7 @@ export default function ExpenseSummary() {
         <Card sx={cardStyle}>
           <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Bạn đã chi</Typography>
           {summaryLoading ? <Skeleton variant="text" width="60%" height={40} /> : (
-            <Typography variant="h5" fontWeight={800} mt={1} color="#22c55e">{formatMoney(userPaid)} <Typography component="span" variant="body2" color="text.secondary" fontWeight={600}>{currency}</Typography></Typography>
+            <Typography variant="h5" fontWeight={700} mt={1} color="#22c55e">{formatMoney(userPaid)} <Typography component="span" variant="body2" color="text.secondary" fontWeight={600}>{currency}</Typography></Typography>
           )}
         </Card>
       </Grid>
@@ -48,7 +48,7 @@ export default function ExpenseSummary() {
         <Card sx={{ ...cardStyle, border: '1px solid #fee2e2' }}>
           <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Bạn còn nợ</Typography>
           {summaryLoading ? <Skeleton variant="text" width="60%" height={40} /> : (
-            <Typography variant="h5" fontWeight={800} mt={1} color="#ef4444">{formatMoney(userDebt)} <Typography component="span" variant="body2" color="text.secondary" fontWeight={600}>{currency}</Typography></Typography>
+            <Typography variant="h5" fontWeight={700} mt={1} color="#ef4444">{formatMoney(userDebt)} <Typography component="span" variant="body2" color="text.secondary" fontWeight={600}>{currency}</Typography></Typography>
           )}
         </Card>
       </Grid>

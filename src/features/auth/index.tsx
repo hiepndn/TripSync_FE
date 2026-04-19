@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import { useDispatch } from 'react-redux';
 import { loginAction, registerAction } from './redux/actions';
 import { useSnackbar } from 'notistack';
+import { getTokenRole } from '@/config/jwt';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -61,7 +62,8 @@ const AuthPage = () => {
 
         if (result.success) {
           enqueueSnackbar('Đăng nhập thành công', { variant: 'success' });
-          navigate('/dashboard');
+          const role = getTokenRole();
+          navigate(role === 'SUPERADMIN' ? '/admin' : '/dashboard');
         } else {
           const errMsg = typeof result.message === 'string' ? result.message : 'Sai email hoặc mật khẩu!';
           enqueueSnackbar('Lỗi đăng nhập: ' + errMsg, { variant: 'error' });
@@ -93,7 +95,8 @@ const AuthPage = () => {
   };
   useEffect(() => {
     if (token) {
-      navigate('/dashboard');
+      const role = getTokenRole();
+      navigate(role === 'SUPERADMIN' ? '/admin' : '/dashboard');
     }
   }, [token, navigate]);
   return (
@@ -126,7 +129,7 @@ const AuthPage = () => {
               >
                 <Flight sx={{ color: 'white', fontSize: 20 }} />
               </Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: '#111814' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#111814' }}>
                 TripSync
               </Typography>
             </Box>

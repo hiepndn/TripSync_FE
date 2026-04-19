@@ -12,6 +12,12 @@ import {
   JOIN_GROUP_FAILURE,
   JOIN_GROUP_REQUEST,
   JOIN_GROUP_SUCCESS,
+  UPDATE_PROFILE_FAILURE,
+  UPDATE_PROFILE_REQUEST,
+  UPDATE_PROFILE_SUCCESS,
+  CHANGE_PASSWORD_FAILURE,
+  CHANGE_PASSWORD_REQUEST,
+  CHANGE_PASSWORD_SUCCESS,
 } from './types';
 import { apiCall } from '@/config/api';
 import { ENDPOINTS } from '@/config/api/endpoint';
@@ -107,3 +113,53 @@ export const getProfileAction = () => async (dispatch: any) => {
     dispatch({ type: GET_PROFILE_FAILURE, payload: err.message || 'Lỗi hệ thống' });
   }
 };
+
+export const updateProfileAction =
+  (payload: { fullName?: string; avatarUrl?: string }, onSuccess?: () => void, onError?: (msg: string) => void) =>
+  async (dispatch: any) => {
+    dispatch({ type: UPDATE_PROFILE_REQUEST });
+    try {
+      const { response, error } = await apiCall({
+        method: 'PUT',
+        url: ENDPOINTS.USER.UPDATE_PROFILE,
+        payload,
+      });
+      if (response && response.status === 200) {
+        dispatch({ type: UPDATE_PROFILE_SUCCESS, payload: response.data.data });
+        if (onSuccess) onSuccess();
+      } else {
+        const errMsg = error || response?.data?.error || 'Cập nhật thất bại';
+        dispatch({ type: UPDATE_PROFILE_FAILURE, payload: errMsg });
+        if (onError) onError(errMsg);
+      }
+    } catch (err: any) {
+      const errMsg = err.message || 'Lỗi hệ thống';
+      dispatch({ type: UPDATE_PROFILE_FAILURE, payload: errMsg });
+      if (onError) onError(errMsg);
+    }
+  };
+
+export const changePasswordAction =
+  (payload: { oldPassword: string; newPassword: string }, onSuccess?: () => void, onError?: (msg: string) => void) =>
+  async (dispatch: any) => {
+    dispatch({ type: CHANGE_PASSWORD_REQUEST });
+    try {
+      const { response, error } = await apiCall({
+        method: 'PUT',
+        url: ENDPOINTS.USER.CHANGE_PASSWORD,
+        payload,
+      });
+      if (response && response.status === 200) {
+        dispatch({ type: CHANGE_PASSWORD_SUCCESS });
+        if (onSuccess) onSuccess();
+      } else {
+        const errMsg = error || response?.data?.error || 'Đổi mật khẩu thất bại';
+        dispatch({ type: CHANGE_PASSWORD_FAILURE, payload: errMsg });
+        if (onError) onError(errMsg);
+      }
+    } catch (err: any) {
+      const errMsg = err.message || 'Lỗi hệ thống';
+      dispatch({ type: CHANGE_PASSWORD_FAILURE, payload: errMsg });
+      if (onError) onError(errMsg);
+    }
+  };

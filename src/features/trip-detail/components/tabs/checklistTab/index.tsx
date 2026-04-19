@@ -351,7 +351,7 @@ export default function ChecklistTab() {
         onClose={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })}
         sx={{ '& .MuiDialog-paper': { borderRadius: 4, minWidth: { xs: 300, sm: 400 } } }}
       >
-        <DialogTitle sx={{ fontWeight: 800 }}>Xác nhận xóa</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700 }}>Xác nhận xóa</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: 'text.secondary' }}>
             Bạn có chắc chắn muốn xóa {deleteConfirm.type === 'category' 

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, CircularProgress, Container } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 import { useAppSelector } from '../../app/store';
 import { fetchGroupDetailAction } from './redux/action';
@@ -18,9 +19,13 @@ import DocumentsTab from './components/tabs/documentsTab';
 export default function TripDetailIndex() {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
   const [activeTab, setActiveTab] = useState('itinerary');
 
   const { groupDetail, loading } = useAppSelector((state: any) => state.tripDetail);
+
+  // Ref để tránh báo lỗi cũ khi mới vào trang
+  const prevAiError = useRef<string>('');
 
   // useEffect 1: Fetch lần đầu khi vào trang
   useEffect(() => {
@@ -41,6 +46,21 @@ export default function TripDetailIndex() {
 
     return () => clearInterval(intervalId);
   }, [id, dispatch, groupDetail?.is_ai_generating]);
+
+  // useEffect 3: Phát hiện lỗi Gemini qua field ai_error sau khi polling xong
+  useEffect(() => {
+    if (!groupDetail) return;
+    const currentError = groupDetail.ai_error || '';
+    // Chỉ hiện snackbar khi lỗi mới xuất hiện (khác với lần trước và không rỗng)
+    if (currentError && currentError !== prevAiError.current) {
+      enqueueSnackbar(currentError, {
+        variant: 'error',
+        autoHideDuration: 8000,
+        anchorOrigin: { vertical: 'top', horizontal: 'center' },
+      });
+    }
+    prevAiError.current = currentError;
+  }, [groupDetail?.ai_error]);
 
   const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);

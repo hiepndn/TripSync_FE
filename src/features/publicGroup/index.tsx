@@ -283,7 +283,7 @@ export default function PublicGroupPage() {
 
         {/* Group info overlay */}
         <Box sx={{ position: 'absolute', bottom: 24, left: 24, color: 'white' }}>
-          <Typography variant="h3" fontWeight={800} sx={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+          <Typography variant="h3" fontWeight={700} sx={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
             {group_info.name}
           </Typography>
           {group_info.description && (
@@ -483,7 +483,7 @@ export default function PublicGroupPage() {
                   <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
                     Tổng chi tiêu
                   </Typography>
-                  <Typography variant="h4" fontWeight={800} mt={1}>
+                  <Typography variant="h4" fontWeight={700} mt={1}>
                     {(expense_summary?.total_amount ?? 0).toLocaleString('vi-VN')}
                     <Typography component="span" variant="body2" color="text.secondary" fontWeight={600} ml={1}>
                       VND
@@ -498,7 +498,7 @@ export default function PublicGroupPage() {
                   <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
                     Số khoản chi
                   </Typography>
-                  <Typography variant="h4" fontWeight={800} mt={1}>
+                  <Typography variant="h4" fontWeight={700} mt={1}>
                     {expense_summary?.expense_count ?? 0}
                     <Typography component="span" variant="body2" color="text.secondary" fontWeight={600} ml={1}>
                       khoản

@@ -121,7 +121,7 @@ const LandingPage = () => {
               >
                 <Flight sx={{ color: 'white', fontSize: 20 }} />
               </Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: '#111814' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#111814' }}>
                 TripSync
               </Typography>
             </Box>
@@ -585,7 +585,7 @@ const LandingPage = () => {
             <Stack spacing={2} sx={{ gridColumn: { xs: 'span 2', md: 'span 1' } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Flight sx={{ color: '#19e66b', fontSize: 24 }} />
-                <Typography variant="h6" fontWeight={800}>
+                <Typography variant="h6" fontWeight={700}>
                   TripSync
                 </Typography>
               </Box>

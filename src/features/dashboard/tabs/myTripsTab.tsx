@@ -234,15 +234,15 @@ const MyTripsTab = () => {
                       }}
                     >
                       {(() => {
-                        const total = group.expected_members || 1;
-                        const shown = Math.min(total, 3);
-                        const extra = total - shown;
+                        const previews = group.member_previews ?? [];
+                        const total = group.member_count ?? group.expected_members ?? 1;
+                        const extra = total - previews.length;
                         return (
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            {Array.from({ length: shown }).map((_, i) => (
+                            {previews.map((member: any, i: number) => (
                               <Avatar
-                                key={i}
-                                src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${group.id}_member_${i}`}
+                                key={member.id}
+                                src={member.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(member.full_name || 'U')}`}
                                 sx={{
                                   width: 32,
                                   height: 32,

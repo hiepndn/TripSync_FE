@@ -193,7 +193,7 @@ export default function TripHeader() {
         {/* 🌟 GÓC DƯỚI TRÁI: Thông tin cơ bản */}
         {/* ========================================== */}
         <Box sx={{ position: 'absolute', bottom: 24, left: 24, color: 'white' }}>
-          <Typography variant="h3" fontWeight={800} sx={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+          <Typography variant="h3" fontWeight={700} sx={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
             {groupDetail.name}
           </Typography>
           <Typography variant="subtitle1" sx={{ mt: 0.5, opacity: 0.9, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>

@@ -93,7 +93,7 @@ export default function ExpenseHistory() {
                       <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase' }}>
                         {createdAt.format('MMM')}
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} lineHeight={1}>
+                      <Typography variant="h6" fontWeight={700} lineHeight={1}>
                         {createdAt.format('DD')}
                       </Typography>
                     </Box>
@@ -120,7 +120,7 @@ export default function ExpenseHistory() {
 
                     {/* Số tiền */}
                     <Box textAlign="right" flexShrink={0}>
-                      <Typography variant="subtitle1" fontWeight={800}>
+                      <Typography variant="subtitle1" fontWeight={700}>
                         {formatMoney(item.amount, item.currency)}
                       </Typography>
                     </Box>

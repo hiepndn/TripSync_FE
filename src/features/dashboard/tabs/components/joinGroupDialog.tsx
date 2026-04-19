@@ -56,7 +56,7 @@ const JoinGroupDialog: React.FC<Props> = ({ open, onClose }) => {
             <Box sx={{ bgcolor: '#eff6ff', p: 1, borderRadius: '12px', display: 'flex' }}>
               <GroupAdd sx={{ color: '#19e66b' }} /> {/* Màu xanh dương cho khác biệt với Tạo Nhóm */}
             </Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#111814' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: '#111814' }}>
               Tham gia nhóm
             </Typography>
           </Box>

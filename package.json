@@ -38,6 +38,7 @@
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.11.0",
+    "recharts": "3.8.1",
     "uuid": "^9.0.1",
     "yup": "^1.7.1"
   },

@@ -20,6 +20,7 @@ import OverviewTab from './tabs/overViewTab';
 import MyTripsTab from './tabs/myTripsTab';
 import ExploreTab from './tabs/exploreTab';
 import FavoritesTab from './tabs/favoritesTab';
+import EditProfileModal from './components/EditProfileModal';
 import { useDispatch } from 'react-redux';
 import { getProfileAction } from './redux/action';
 import { useAppSelector } from '@/app/store';
@@ -27,6 +28,7 @@ import { useAppSelector } from '@/app/store';
 const Dashboard = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const token = localStorage.getItem('jwt');
   const dispatch = useDispatch<any>();
 
@@ -84,7 +86,7 @@ const Dashboard = () => {
               >
                 <Flight sx={{ color: 'white', fontSize: 20 }} />
               </Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: '#111814' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#111814' }}>
                 TripSync
               </Typography>
             </Box>
@@ -113,7 +115,7 @@ const Dashboard = () => {
                 </Badge>
               </IconButton>
               <Avatar
-                src={profile?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(profile?.full_name || 'User')}&backgroundColor=0f766e`}
+                src={profile?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(profile?.full_name || profile?.email || 'User')}&backgroundColor=0f766e`}
                 sx={{ cursor: 'pointer', width: 36, height: 36 }}
                 onClick={(e) => setAnchorEl(e.currentTarget)}
               />
@@ -123,7 +125,14 @@ const Dashboard = () => {
                 onClose={() => setAnchorEl(null)}
                 PaperProps={{ sx: { mt: 1.5, minWidth: 150 } }}
               >
-                <MenuItem onClick={() => setAnchorEl(null)}>Hồ sơ của tôi</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setAnchorEl(null);
+                    setProfileModalOpen(true);
+                  }}
+                >
+                  Hồ sơ của tôi
+                </MenuItem>
                 <MenuItem onClick={handleLogout} sx={{ color: 'error.main', fontWeight: 600 }}>
                   Đăng xuất
                 </MenuItem>
@@ -140,6 +149,9 @@ const Dashboard = () => {
         {activeTab === 2 && <ExploreTab />}
         {activeTab === 3 && <FavoritesTab />}
       </Box>
+
+      {/* ===== EDIT PROFILE MODAL ===== */}
+      <EditProfileModal open={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
     </Box>
   );
 };

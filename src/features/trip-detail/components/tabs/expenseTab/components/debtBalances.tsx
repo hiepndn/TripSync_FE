@@ -74,7 +74,7 @@ export default function DebtBalances({ debts, members }: Props) {
                     <ArrowRightAltIcon sx={{ color: '#94a3b8' }} />
                     <Avatar src={toUser.avatar} sx={{ width: 32, height: 32 }} />
                   </Stack>
-                  <Typography variant="subtitle1" fontWeight={800} color="#ef4444">
+                  <Typography variant="subtitle1" fontWeight={700} color="#ef4444">
                     {debt.amount.toLocaleString('vi-VN')} đ
                   </Typography>
                 </Stack>
@@ -108,12 +108,12 @@ export default function DebtBalances({ debts, members }: Props) {
         onClose={() => !isSettling && setSelectedDebt(null)}
         PaperProps={{ sx: { borderRadius: 3, p: 1, minWidth: 350 } }}
       >
-        <DialogTitle sx={{ textAlign: 'center', fontWeight: 800 }}>Xác nhận thanh toán</DialogTitle>
+        <DialogTitle sx={{ textAlign: 'center', fontWeight: 700 }}>Xác nhận thanh toán</DialogTitle>
         <DialogContent sx={{ textAlign: 'center' }}>
           <Typography variant="body1" mb={2}>
             Ghi nhận <b>{selectedDebt?.fromUser?.full_name}</b> đã trả cho <b>{selectedDebt?.toUser?.full_name}</b> đúng không?
           </Typography>
-          <Typography variant="h4" fontWeight={800} color="#22c55e">
+          <Typography variant="h4" fontWeight={700} color="#22c55e">
             {selectedDebt?.amount?.toLocaleString('vi-VN')} đ
           </Typography>
         </DialogContent>

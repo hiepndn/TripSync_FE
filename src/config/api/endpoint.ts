@@ -37,10 +37,22 @@ export const ENDPOINTS = {
   },
   USER: {
     GET_PROFILE: '/api/auth/me',
+    UPDATE_PROFILE: '/api/auth/me',
+    CHANGE_PASSWORD: '/api/auth/me/password',
   },
   FAVORITE: {
     TOGGLE: (groupId: string | number) => `/api/groups/${groupId}/favorite`,
     LIST: '/api/favorites',
+  },
+  ADMIN: {
+    STATS: '/api/admin/stats',
+    STATS_CHART: '/api/admin/stats/chart',
+    STATS_GROWTH: '/api/admin/stats/growth',
+    USERS: '/api/admin/users',
+    UPDATE_USER_ROLE: (id: string | number) => `/api/admin/users/${id}/role`,
+    DELETE_USER: (id: string | number) => `/api/admin/users/${id}`,
+    GROUPS: '/api/admin/groups',
+    DELETE_GROUP: (id: string | number) => `/api/admin/groups/${id}`,
   },
   EXPENSE: {
     CREATE: (groupId: string | number) => `/api/groups/${groupId}/expenses`,

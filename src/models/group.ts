@@ -1,3 +1,9 @@
+export interface MemberPreview {
+  id: number;
+  full_name: string;
+  avatar: string;
+}
+
 export interface Group {
   id?: number | string;
   name: string;
@@ -12,5 +18,8 @@ export interface Group {
   budget_per_person?: number;
   currency?: string;
   is_ai_generating?: boolean;
+  ai_error?: string;
   role?: 'ADMIN' | 'MEMBER';
+  member_count?: number;
+  member_previews?: MemberPreview[];
 }

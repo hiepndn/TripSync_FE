@@ -73,7 +73,7 @@ export default function EstimatedCostCard() {
             <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
               Chi phí ước lượng lịch trình
             </Typography>
-            <Typography variant="h5" fontWeight={800} mt={0.5}>
+            <Typography variant="h5" fontWeight={700} mt={0.5}>
               {formatMoney(totalEstimated, currency)}
             </Typography>
           </Box>
