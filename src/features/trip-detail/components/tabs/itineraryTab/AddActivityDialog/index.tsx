@@ -67,6 +67,8 @@ const ActivityDialog: React.FC<Props> = ({
       description: isEdit ? activity?.description : '',
       start_time: isEdit ? dayjs(activity?.start_time) : baseDate.hour(8).minute(0).second(0),
       end_time: isEdit ? dayjs(activity?.end_time) : baseDate.hour(10).minute(0).second(0),
+      estimated_cost: isEdit ? (activity?.estimatedCost ?? 0) : 0,
+      currency: isEdit ? (activity?.currency || 'VND') : 'VND',
     },
     validate: (values) => {
       const errors: any = {};
@@ -91,6 +93,8 @@ const ActivityDialog: React.FC<Props> = ({
         description: values.description,
         start_time: values.start_time.format(),
         end_time: values.end_time.format(),
+        estimated_cost: Number(values.estimated_cost) || 0,
+        currency: values.currency || 'VND',
         lat,
         lng,
         place_id: isEdit ? activity?.place_id : '',
@@ -265,6 +269,37 @@ const ActivityDialog: React.FC<Props> = ({
                 rows={3}
                 sx={inputStyle}
               />
+
+              {/* Chi phí ước tính */}
+              <Stack direction="row" spacing={2}>
+                <TextField
+                  label="Chi phí ước tính / người"
+                  name="estimated_cost"
+                  type="number"
+                  value={formik.values.estimated_cost}
+                  onChange={formik.handleChange}
+                  inputProps={{ min: 0 }}
+                  sx={{ ...inputStyle, flex: 3 }}
+                  InputProps={{
+                    endAdornment: (
+                      <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', pr: 1 }}>
+                        {formik.values.currency}
+                      </Typography>
+                    ),
+                  }}
+                />
+                <TextField
+                  select
+                  label="Đơn vị"
+                  name="currency"
+                  value={formik.values.currency}
+                  onChange={formik.handleChange}
+                  sx={{ ...inputStyle, flex: 1 }}
+                >
+                  <MenuItem value="VND">VND</MenuItem>
+                  <MenuItem value="USD">USD</MenuItem>
+                </TextField>
+              </Stack>
 
               {!isEdit && (
                 <SuggestionsPanel

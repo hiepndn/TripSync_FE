@@ -13,7 +13,30 @@ export default function MapWidget({ activities }: Props) {
   const mapInstanceRef = useRef<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const waypoints = activities
+  // Lọc conflict: với mỗi nhóm cùng start_time, chỉ lấy 1 đại diện
+  // Ưu tiên APPROVED, nếu không có thì lấy cái nhiều vote nhất
+  const deduped = (() => {
+    const groups = new Map<string, Activity[]>();
+    for (const act of activities) {
+      const key = new Date(act.start_time).toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(act);
+    }
+    const result: Activity[] = [];
+    for (const group of groups.values()) {
+      const approved = group.find((a) => a.status === 'APPROVED');
+      if (approved) {
+        result.push(approved);
+      } else {
+        // Lấy cái nhiều vote nhất
+        const best = group.reduce((a, b) => (b.vote_count ?? 0) > (a.vote_count ?? 0) ? b : a);
+        result.push(best);
+      }
+    }
+    return result;
+  })();
+
+  const waypoints = deduped
     .filter((a) => a.lat && a.lng && Math.abs(a.lat) > 0.001 && Math.abs(a.lng) > 0.001)
     .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
 
@@ -102,7 +125,7 @@ export default function MapWidget({ activities }: Props) {
         mapInstanceRef.current = null;
       }
     };
-  }, [activities]);
+  }, [JSON.stringify(waypoints.map(a => a.id))]);
 
   return (
     <Card variant="outlined" sx={{ borderRadius: 4, borderColor: 'grey.200', overflow: 'hidden' }}>

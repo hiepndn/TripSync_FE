@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Card,
@@ -22,7 +22,6 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
-
 import HotelIcon from '@mui/icons-material/Hotel';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AttractionsIcon from '@mui/icons-material/Attractions';
@@ -47,7 +46,7 @@ import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
 import { useSnackbar } from 'notistack';
 import StarRatingWidget from './StarRatingWidget';
-
+import ConflictGroup from './ConflictGroup';
 const typeIcon: Record<string, React.ReactNode> = {
   HOTEL: <HotelIcon />,
   RESTAURANT: <RestaurantIcon />,
@@ -156,8 +155,9 @@ const ActivityTimelineItem = ({
           sx={{
             p: 2,
             borderRadius: 3,
-            borderColor: isApproved ? 'grey.200' : '#fcd34d',
-            ...(isPending && { borderLeft: '4px solid #f59e0b' }),
+            border: isPending ? '1.5px solid #fcd34d' : '1.5px solid #e2e8f0',
+            borderLeft: isPending ? '4px solid #f59e0b' : '1.5px solid #e2e8f0',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
             ...(act.imageURL && { overflow: 'hidden' }),
           }}
         >
@@ -448,6 +448,26 @@ export default function TripTimeline({ activities, loading, groupId, currentDate
   const { myRole } = useAppSelector((state: any) => state.tripDetail);
   const isOwner = myRole === 'ADMIN';
 
+  // Group activities cùng start_time thành conflict groups
+  const timelineGroups = useMemo(() => {
+    const sorted = [...activities].sort((a, b) =>
+      dayjs(a.start_time).valueOf() - dayjs(b.start_time).valueOf()
+    );
+    const groups: Activity[][] = [];
+    const seen = new Map<string, number>();
+
+    for (const act of sorted) {
+      const key = dayjs(act.start_time).format('YYYY-MM-DD HH:mm');
+      if (seen.has(key)) {
+        groups[seen.get(key)!].push(act);
+      } else {
+        seen.set(key, groups.length);
+        groups.push([act]);
+      }
+    }
+    return groups;
+  }, [activities]);
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
@@ -478,16 +498,51 @@ export default function TripTimeline({ activities, loading, groupId, currentDate
       ) : (
         /* NẾU CÓ DATA THÌ HIỆN TIMELINE */
         <>
-          <Timeline sx={{ [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 }, p: 0 }}>
-            {activities.map((act, idx) => (
-              <ActivityTimelineItem
-                key={act.id}
-                act={act}
-                isLast={idx === activities.length - 1}
-                isOwner={isOwner}
-                groupId={Number(groupId)}
-              />
-            ))}
+        <Timeline sx={{ [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 }, p: 0 }}>
+            {timelineGroups.map((group, idx) => {
+              const isLast = idx === timelineGroups.length - 1;
+              if (group.length === 1) {
+                // Render bình thường
+                return (
+                  <ActivityTimelineItem
+                    key={group[0].id}
+                    act={group[0]}
+                    isLast={isLast}
+                    isOwner={isOwner}
+                    groupId={Number(groupId)}
+                  />
+                );
+              }
+              // Render conflict group
+              const isConflictApproved = group.some((a) => a.status === 'APPROVED');
+              return (
+                <TimelineItem key={`conflict-${group[0].id}`}>
+                  <TimelineSeparator>
+                    <TimelineDot sx={{ bgcolor: isConflictApproved ? '#19e66b' : '#f59e0b', boxShadow: 'none' }} />
+                    {!isLast && (
+                      <TimelineConnector sx={{ bgcolor: isConflictApproved ? '#19e66b' : 'grey.200', width: 2 }} />
+                    )}
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ pb: 4, pr: 0 }}>
+                    {/* Giờ */}
+                    <Stack direction="row" spacing={1} mb={1}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ mt: 0.5, fontWeight: 700, color: isConflictApproved ? '#16a34a' : 'inherit' }}
+                      >
+                        {dayjs(group[0].start_time).format('HH:mm')}
+                      </Typography>
+                    </Stack>
+                    <ConflictGroup
+                      activities={group}
+                      isOwner={isOwner}
+                      groupId={Number(groupId)}
+                      selectedDate={currentDate}
+                    />
+                  </TimelineContent>
+                </TimelineItem>
+              );
+            })}
           </Timeline>
 
           {!hideAddButton && (
