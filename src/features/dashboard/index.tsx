@@ -37,8 +37,6 @@ const Dashboard = () => {
 
   const { profile } = useAppSelector((state) => state.groups);
 
-  console.log('Profile từ Redux:', profile);
-
   const handleLogout = () => {
     localStorage.removeItem('jwt');
     navigate('/login');

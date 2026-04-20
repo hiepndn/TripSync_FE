@@ -77,7 +77,6 @@ const AuthPage = () => {
         }));
 
         if (result.success) {
-          console.log('🎉 Đăng ký thành công!');
           enqueueSnackbar('Đăng ký thành công! Đăng nhập ngay nhé.', { variant: 'success' });
           setTabIndex(0); 
           formik.resetForm();

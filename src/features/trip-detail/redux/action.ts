@@ -94,8 +94,6 @@ export const fetchGroupDetailAction = (groupId: string | number) => async (dispa
 
     // BE endpoint này trả về format: { data: { group_info, members, my_role }, message }
     const groupInfo = response?.data?.data?.group_info;
-    console.log('[fetchGroupDetail] group_info:', groupInfo);
-    console.log('[fetchGroupDetail] is_ai_generating:', groupInfo?.is_ai_generating);
 
     if (groupInfo) {
       dispatch({ type: FETCH_GROUP_DETAIL_SUCCESS, payload: response.data.data });
@@ -140,11 +138,8 @@ export const voteActivityAction =
         method: 'POST',
         url: ENDPOINTS.ACTIVITY.VOTE(groupId, activityId), // 🌟 Gọi hàm từ ENDPOINTS
       });
-      console.log(response?.status === 200);
       if (response?.status === 200) {
-        console.log('zooo');
         dispatch({ type: VOTE_ACTIVITY_SUCCESS });
-        console.log('zooo2');
         if (onSuccess) onSuccess(); 
         
         // Nhớ vẫn phải truyền 'true' để không bật Loading màn hình nhé
