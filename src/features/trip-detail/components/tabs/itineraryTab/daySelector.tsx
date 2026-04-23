@@ -64,7 +64,7 @@ export default function DaySelector({ days, selectedDate, onSelectDate }: Props)
 
       {/* Hành động: Filter & Export */}
       <Stack direction="row" spacing={1} sx={{ pl: 2 }}>
-        <Button 
+        {/* <Button 
           variant="text" 
           startIcon={<IosShareIcon />}
           sx={{ 
@@ -78,7 +78,7 @@ export default function DaySelector({ days, selectedDate, onSelectDate }: Props)
           }}
         >
           Xuất
-        </Button>
+        </Button> */}
       </Stack>
     </Stack>
   );

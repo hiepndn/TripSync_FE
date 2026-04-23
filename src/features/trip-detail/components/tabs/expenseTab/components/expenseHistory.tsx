@@ -74,8 +74,9 @@ export default function ExpenseHistory() {
             <Typography>Chưa có khoản chi tiêu nào</Typography>
           </Box>
         ) : (
-          <Stack divider={<Divider />}>
-            {expenseList.map((item: any) => {
+          <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+            <Stack divider={<Divider />}>
+              {expenseList.map((item: any) => {
               const bg = splitBg[item.split_type] || '#f1f5f9';
               const icon = splitIcon[item.split_type] || <ReceiptLongIcon sx={{ color: '#64748b' }} />;
               // BE trả models.Expense (có payer_id) → lookup tên từ members trong Redux
@@ -128,7 +129,8 @@ export default function ExpenseHistory() {
                 </Box>
               );
             })}
-          </Stack>
+            </Stack>
+          </Box>
         )}
       </Card>
     </Box>

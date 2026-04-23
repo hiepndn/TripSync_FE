@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import {
   Dialog,
@@ -14,7 +14,7 @@ import {
   MenuItem,
   Stack,
 } from '@mui/material';
-import { Close, Map, EditLocationAlt } from '@mui/icons-material';
+import { Close, Map, EditLocationAlt, WarningAmberRounded } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import { useSnackbar } from 'notistack';
 
@@ -24,19 +24,18 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import dayjs, { Dayjs } from 'dayjs';
 
 import { Activity } from '@/models/activity';
-// 🌟 Import cả 2 action Add và Update
 import { addActivityAction, updateActivityAction } from '@/features/trip-detail/redux/action';
 import SuggestionsPanel, { SuggestionItem } from './SuggestionsPanel';
 import LocationAutocomplete from '@/components/LocationAutocomplete';
+import { useAppSelector } from '@/app/store';
 
-// 🌟 Định nghĩa Props siêu chặt chẽ
 interface Props {
   open: boolean;
   onClose: () => void;
   groupId: string | number;
-  mode: 'add' | 'edit'; // Bắt buộc truyền mode
-  selectedDate?: string | Date | Dayjs; // Dùng cho chế độ 'add'
-  activity?: Activity; // Dùng cho chế độ 'edit'
+  mode: 'add' | 'edit';
+  selectedDate?: string | Date | Dayjs;
+  activity?: Activity;
 }
 
 const ActivityDialog: React.FC<Props> = ({
@@ -51,15 +50,72 @@ const ActivityDialog: React.FC<Props> = ({
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [selectedLatLng, setSelectedLatLng] = useState<{ lat: number; lng: number } | null>(null);
+  const [pendingPayload, setPendingPayload] = useState<any>(null);
+  const [showBudgetWarning, setShowBudgetWarning] = useState(false);
+
+  const { groupDetail, activities } = useAppSelector((state: any) => state.tripDetail);
+  const budgetPerPerson = groupDetail?.budget_per_person ?? 0;
+  const expectedMembers = groupDetail?.expected_members ?? 1;
+  const totalBudget = budgetPerPerson * expectedMembers;
+  const currency = groupDetail?.currency || 'VND';
+
+  // Tính tổng chi phí hiện tại (đã xử lý conflict giống estimatedCostCard)
+  const currentTotalEstimated = useMemo(() => {
+    const withCost = activities.filter((a: any) => (a.estimatedCost || a.estimated_cost) > 0);
+    const groups: Record<string, any[]> = {};
+    for (const act of withCost) {
+      const key = act.start_time
+        ? new Date(act.start_time).toISOString().slice(0, 16)
+        : `no-time-${act.id}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(act);
+    }
+    let total = 0;
+    for (const group of Object.values(groups)) {
+      if (group.length === 1) {
+        total += group[0].estimatedCost || group[0].estimated_cost || 0;
+      } else {
+        const approved = group.filter((a: any) => a.status === 'APPROVED' || a.status === 'APPROVE');
+        const candidates = approved.length >= 1 ? approved : group;
+        const pick = candidates.reduce((max: any, a: any) =>
+          (a.estimatedCost || a.estimated_cost) > (max.estimatedCost || max.estimated_cost) ? a : max
+        );
+        total += pick.estimatedCost || pick.estimated_cost || 0;
+      }
+    }
+    return total;
+  }, [activities]);
 
   const isEdit = mode === 'edit';
-
-  // 🌟 Xác định ngày gốc dựa vào mode
   const baseDate = isEdit && activity ? dayjs(activity.start_time) : dayjs(selectedDate);
+
+  // Hàm thực sự dispatch action sau khi đã xác nhận
+  const dispatchAction = (payload: any, resetForm: () => void) => {
+    setLoading(true);
+
+    const onSuccess = () => {
+      enqueueSnackbar(isEdit ? 'Cập nhật thành công!' : 'Thêm hoạt động thành công!', {
+        variant: 'success',
+      });
+      setLoading(false);
+      resetForm();
+      onClose();
+    };
+
+    const onError = (err: any) => {
+      setLoading(false);
+      enqueueSnackbar(err || 'Có lỗi xảy ra, thử lại sau!', { variant: 'error' });
+    };
+
+    if (isEdit && activity) {
+      dispatch(updateActivityAction(groupId, activity.id, payload, onSuccess, onError) as any);
+    } else {
+      dispatch(addActivityAction(groupId, payload, onSuccess, onError) as any);
+    }
+  };
 
   const formik = useFormik({
     enableReinitialize: true,
-    // 🌟 Gắn logic ternary (isEdit ? A : B) cho initialValues
     initialValues: {
       name: isEdit ? activity?.name : '',
       type: isEdit ? activity?.type : 'ATTRACTION',
@@ -80,9 +136,6 @@ const ActivityDialog: React.FC<Props> = ({
       return errors;
     },
     onSubmit: async (values, { resetForm }) => {
-      setLoading(true);
-
-      // Dùng tọa độ từ autocomplete nếu có, không geocode mù
       const lat = isEdit ? (activity?.lat ?? 0) : (selectedLatLng?.lat ?? 0);
       const lng = isEdit ? (activity?.lng ?? 0) : (selectedLatLng?.lng ?? 0);
 
@@ -100,26 +153,18 @@ const ActivityDialog: React.FC<Props> = ({
         place_id: isEdit ? activity?.place_id : '',
       };
 
-      const onSuccess = () => {
-        enqueueSnackbar(isEdit ? 'Cập nhật thành công!' : 'Thêm hoạt động thành công!', {
-          variant: 'success',
-        });
-        setLoading(false);
-        resetForm();
-        onClose();
-      };
-
-      const onError = (err: any) => {
-        setLoading(false);
-        enqueueSnackbar(err || 'Có lỗi xảy ra, thử lại sau!', { variant: 'error' });
-      };
-
-      // 🌟 Dựa vào mode để gọi đúng Action
-      if (isEdit && activity) {
-        dispatch(updateActivityAction(groupId, activity.id, payload, onSuccess, onError) as any);
-      } else {
-        dispatch(addActivityAction(groupId, payload, onSuccess, onError) as any);
+      // Kiểm tra vượt ngân sách tổng nhóm
+      const cost = Number(values.estimated_cost) || 0;
+      // Edit: trừ chi phí cũ của activity đang sửa ra trước khi cộng mới vào
+      const oldCost = isEdit ? (activity?.estimatedCost || 0) : 0;
+      const projectedTotal = currentTotalEstimated - oldCost + cost;
+      if (totalBudget > 0 && projectedTotal > totalBudget) {
+        setPendingPayload({ payload, resetForm });
+        setShowBudgetWarning(true);
+        return;
       }
+
+      dispatchAction(payload, resetForm);
     },
   });
 
@@ -132,7 +177,6 @@ const ActivityDialog: React.FC<Props> = ({
     }
   };
 
-  // 🌟 Các biến phụ trợ cho UI đổi màu theo mode
   const uiColor = isEdit ? '#0284c7' : '#16a34a';
   const uiBgColor = isEdit ? '#e0f2fe' : '#dcfce7';
   const btnHoverColor = isEdit ? '#0284c7' : '#15c95c';
@@ -141,6 +185,7 @@ const ActivityDialog: React.FC<Props> = ({
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
+      {/* ===== DIALOG CHÍNH ===== */}
       <Dialog
         open={open}
         onClose={onClose}
@@ -192,7 +237,6 @@ const ActivityDialog: React.FC<Props> = ({
                 {baseDate.format('DD/MM/YYYY')}
               </Typography>
 
-              {/* ... CÁC TEXTFIELD VÀ TIMEPICKER GIỮ NGUYÊN NHƯ CŨ ... */}
               <TextField
                 label="Tên hoạt động"
                 name="name"
@@ -224,7 +268,6 @@ const ActivityDialog: React.FC<Props> = ({
                     value={formik.values.location || ''}
                     onChange={(val) => {
                       formik.setFieldValue('location', val);
-                      // Reset tọa độ khi user gõ lại thủ công
                       setSelectedLatLng(null);
                     }}
                     onSelect={(result) => {
@@ -347,6 +390,89 @@ const ActivityDialog: React.FC<Props> = ({
             </Button>
           </DialogActions>
         </form>
+      </Dialog>
+
+      {/* ===== DIALOG CẢNH BÁO VƯỢT NGÂN SÁCH ===== */}
+      <Dialog
+        open={showBudgetWarning}
+        onClose={() => setShowBudgetWarning(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
+      >
+        <DialogTitle sx={{ textAlign: 'center', pt: 3 }}>
+          <Stack alignItems="center" spacing={2}>
+            <Box
+              sx={{
+                width: 72,
+                height: 72,
+                bgcolor: '#fff7ed',
+                color: '#f97316',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <WarningAmberRounded sx={{ fontSize: '2.5rem' }} />
+            </Box>
+            <Typography variant="h6" fontWeight={700} color="#111814">
+              Vượt ngân sách dự kiến
+            </Typography>
+          </Stack>
+        </DialogTitle>
+
+        <DialogContent sx={{ textAlign: 'center', px: 3, pb: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            Sau khi {isEdit ? 'cập nhật' : 'thêm'} hoạt động này, tổng chi phí ước lượng sẽ là{' '}
+            <Box component="span" fontWeight={700} color="#f97316">
+              {(() => {
+                const cost = Number(formik.values.estimated_cost) || 0;
+                const oldCost = isEdit ? (activity?.estimatedCost || 0) : 0;
+                return (currentTotalEstimated - oldCost + cost).toLocaleString('vi-VN');
+              })()} {formik.values.currency}
+            </Box>
+            , vượt quá ngân sách nhóm (
+            <Box component="span" fontWeight={700}>
+              {totalBudget.toLocaleString('vi-VN')} {currency}
+            </Box>
+            ).
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mt={1.5}>
+            Bạn có muốn tiếp tục không?
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'center', gap: 1.5, px: 3, pb: 3, pt: 2 }}>
+          <Button
+            onClick={() => setShowBudgetWarning(false)}
+            variant="outlined"
+            color="inherit"
+            sx={{ borderRadius: 3, fontWeight: 600, textTransform: 'none', flex: 1 }}
+          >
+            Quay lại sửa
+          </Button>
+          <Button
+            onClick={() => {
+              setShowBudgetWarning(false);
+              if (pendingPayload) {
+                dispatchAction(pendingPayload.payload, pendingPayload.resetForm);
+                setPendingPayload(null);
+              }
+            }}
+            variant="contained"
+            sx={{
+              borderRadius: 3,
+              fontWeight: 700,
+              textTransform: 'none',
+              flex: 1,
+              bgcolor: '#f97316',
+              '&:hover': { bgcolor: '#ea6c0a' },
+            }}
+          >
+            Tiếp tục
+          </Button>
+        </DialogActions>
       </Dialog>
     </LocalizationProvider>
   );

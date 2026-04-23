@@ -117,7 +117,11 @@ export const tripDetailReducer = (state = initialState, action: any): TripDetail
   switch (action.type) {
     // ===== GROUP DETAIL =====
     case FETCH_GROUP_DETAIL_REQUEST:
-      return { ...state, loading: true, error: null, activities: [], groupDetail: null, members: [], myRole: null };
+      // Chỉ reset activities/loading khi fetch lần đầu (chưa có groupDetail)
+      // Khi polling (đã có groupDetail) thì giữ nguyên để tránh chớp màn
+      return state.groupDetail
+        ? { ...state, error: null }
+        : { ...state, loading: true, error: null, activities: [], groupDetail: null, members: [], myRole: null };
 
     // payload = { group_info: {...}, members: [...], my_role: "ADMIN" }
     case FETCH_GROUP_DETAIL_SUCCESS:
@@ -183,7 +187,8 @@ export const tripDetailReducer = (state = initialState, action: any): TripDetail
     case REGENERATE_AI_SUCCESS:
       return {
         ...state,
-        // 🌟 Cập nhật thẳng cờ AI thành true để UI tự động đổi sang màn hình Banner Loading
+        activitiesLoading: false,
+        activities: [],
         groupDetail: state.groupDetail ? { ...state.groupDetail, is_ai_generating: true } : null,
       };
 

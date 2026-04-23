@@ -27,6 +27,7 @@ export default function ItineraryTab() {
   const { enqueueSnackbar } = useSnackbar();
 
   const { activities, activitiesLoading, groupDetail, myRole } = useAppSelector((state: any) => state.tripDetail);
+  const isAIGenerating = groupDetail?.is_ai_generating ?? false;
   const isOwner = myRole === 'ADMIN';
 
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -35,7 +36,7 @@ export default function ItineraryTab() {
   const [deletingAll, setDeletingAll] = useState(false);
 
   useEffect(() => {
-    if (id) dispatch(fetchActivitiesAction(id) as any);
+    if (id && !isAIGenerating) dispatch(fetchActivitiesAction(id) as any);
   }, [id, dispatch]);
 
   const tripDays = useMemo(() => {
@@ -134,7 +135,7 @@ export default function ItineraryTab() {
           <Box sx={{ maxHeight: '65vh', overflowY: 'auto', pr: 1 }}>
             <TripTimeline
               activities={filteredActivities}
-              loading={activitiesLoading}
+              loading={activitiesLoading && !isAIGenerating}
               groupId={id || ''}
               currentDate={selectedDate}
               hideAddButton

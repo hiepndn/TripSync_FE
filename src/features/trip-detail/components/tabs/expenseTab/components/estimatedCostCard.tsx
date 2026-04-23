@@ -40,9 +40,61 @@ export default function EstimatedCostCard() {
     [activities]
   );
 
+  // Xử lý conflict: nhóm theo start_time, mỗi nhóm chỉ lấy 1 đại diện
+  // - Nếu trong nhóm có APPROVED → lấy cái APPROVED (đã chốt, không còn conflict)
+  // - Nếu toàn PENDING (conflict chưa giải quyết) → lấy cái đắt nhất (worst case)
+  const deduplicatedActivities = useMemo(() => {
+    const groups = new Map<string, any[]>();
+    for (const act of activitiesWithCost) {
+      // Group key: ngày + giờ (YYYY-MM-DD HH:mm)
+      const key = act.start_time
+        ? new Date(act.start_time).toISOString().slice(0, 16)
+        : `no-time-${act.id}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(act);
+    }
+
+    const result: any[] = [];
+    for (const group of groups.values()) {
+      if (group.length === 1) {
+        result.push(group[0]);
+        continue;
+      }
+      // Có conflict — ưu tiên APPROVED
+      const approved = group.filter((a) => a.status === 'APPROVED' || a.status === 'APPROVE');
+      if (approved.length === 1) {
+        // Đã chốt 1 cái, lấy cái đó
+        result.push(approved[0]);
+      } else if (approved.length > 1) {
+        // Nhiều cái APPROVED cùng giờ (hiếm) → lấy đắt nhất
+        result.push(approved.reduce((max: any, a: any) =>
+          (a.estimatedCost || a.estimated_cost) > (max.estimatedCost || max.estimated_cost) ? a : max
+        ));
+      } else {
+        // Toàn PENDING → ưu tiên theo vote_count, bằng nhau thì lấy đắt nhất
+        const hasVotes = group.some((a: any) => (a.vote_count ?? 0) > 0);
+        if (hasVotes) {
+          result.push(group.reduce((best: any, a: any) => {
+            const aVotes = a.vote_count ?? 0;
+            const bVotes = best.vote_count ?? 0;
+            if (aVotes !== bVotes) return aVotes > bVotes ? a : best;
+            // vote bằng nhau → lấy đắt hơn
+            return (a.estimatedCost || a.estimated_cost) > (best.estimatedCost || best.estimated_cost) ? a : best;
+          }));
+        } else {
+          // Chưa ai vote → lấy đắt nhất làm worst case
+          result.push(group.reduce((max: any, a: any) =>
+            (a.estimatedCost || a.estimated_cost) > (max.estimatedCost || max.estimated_cost) ? a : max
+          ));
+        }
+      }
+    }
+    return result;
+  }, [activitiesWithCost]);
+
   const totalEstimated = useMemo(
-    () => activitiesWithCost.reduce((sum: number, a: any) => sum + (a.estimatedCost || a.estimated_cost || 0), 0),
-    [activitiesWithCost]
+    () => deduplicatedActivities.reduce((sum: number, a: any) => sum + (a.estimatedCost || a.estimated_cost || 0), 0),
+    [deduplicatedActivities]
   );
 
   const budgetPerPerson = groupDetail?.budget_per_person || 0;
@@ -52,9 +104,9 @@ export default function EstimatedCostCard() {
   // Phần trăm đã "tiêu" so với ngân sách dự tính
   const usagePercent = totalBudget > 0 ? Math.min((totalEstimated / totalBudget) * 100, 100) : 0;
   const isOverBudget = totalEstimated > totalBudget && totalBudget > 0;
-  const currency = activitiesWithCost[0]?.currency || 'VND';
+  const currency = deduplicatedActivities[0]?.currency || 'VND';
 
-  if (activitiesWithCost.length === 0) return null;
+  if (deduplicatedActivities.length === 0) return null;
 
   return (
     <Card
@@ -120,11 +172,24 @@ export default function EstimatedCostCard() {
       </Box>
 
       {/* Danh sách chi tiết */}
-      <Stack divider={<Divider />}>
-        {activitiesWithCost.map((act: any) => {
+      <Box sx={{ maxHeight: 320, overflowY: 'auto' }}>
+        <Stack divider={<Divider />}>
+        {deduplicatedActivities.map((act: any) => {
           const cost = act.estimatedCost || act.estimated_cost;
           const color = typeColor[act.type] || '#64748b';
           const icon = typeIcon[act.type] || <AttractionsIcon sx={{ fontSize: '1rem' }} />;
+          // Kiểm tra xem act này có bị conflict với act khác không (cùng start_time)
+          const conflictPeers = activitiesWithCost.filter((a: any) =>
+            a.id !== act.id &&
+            a.start_time &&
+            act.start_time &&
+            new Date(a.start_time).toISOString().slice(0, 16) === new Date(act.start_time).toISOString().slice(0, 16)
+          );
+          const wasConflict = conflictPeers.length > 0;
+          const isApproved = act.status === 'APPROVED' || act.status === 'APPROVE';
+          // Xác định lý do được chọn trong conflict
+          const hasVotesInGroup = wasConflict && (act.vote_count ?? 0) > 0;
+          const conflictBadgeLabel = hasVotesInGroup ? 'Nhiều vote nhất' : 'Cao nhất';
 
           return (
             <Box
@@ -161,8 +226,10 @@ export default function EstimatedCostCard() {
                   <Typography variant="body2" fontWeight={700}>
                     {formatMoney(cost, act.currency || currency)}
                   </Typography>
-                  {act.status === 'APPROVED' ? (
+                  {isApproved ? (
                     <Chip label="Đã chốt" size="small" sx={{ height: 16, fontSize: '0.6rem', bgcolor: '#dcfce7', color: '#16a34a' }} />
+                  ) : wasConflict ? (
+                    <Chip label={conflictBadgeLabel} size="small" sx={{ height: 16, fontSize: '0.6rem', bgcolor: '#fff7ed', color: '#c2410c' }} />
                   ) : (
                     <Chip label="Đề xuất" size="small" sx={{ height: 16, fontSize: '0.6rem', bgcolor: '#fef9c3', color: '#a16207' }} />
                   )}
@@ -171,7 +238,8 @@ export default function EstimatedCostCard() {
             </Box>
           );
         })}
-      </Stack>
+        </Stack>
+      </Box>
     </Card>
   );
 }
