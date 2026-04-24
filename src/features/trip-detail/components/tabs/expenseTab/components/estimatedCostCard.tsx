@@ -61,7 +61,7 @@ export default function EstimatedCostCard() {
         continue;
       }
       // Có conflict — ưu tiên APPROVED
-      const approved = group.filter((a) => a.status === 'APPROVED' || a.status === 'APPROVE');
+      const approved = group.filter((a) => a.status === 'APPROVED');
       if (approved.length === 1) {
         // Đã chốt 1 cái, lấy cái đó
         result.push(approved[0]);
@@ -186,7 +186,7 @@ export default function EstimatedCostCard() {
             new Date(a.start_time).toISOString().slice(0, 16) === new Date(act.start_time).toISOString().slice(0, 16)
           );
           const wasConflict = conflictPeers.length > 0;
-          const isApproved = act.status === 'APPROVED' || act.status === 'APPROVE';
+          const isApproved = act.status === 'APPROVED';
           // Xác định lý do được chọn trong conflict
           const hasVotesInGroup = wasConflict && (act.vote_count ?? 0) > 0;
           const conflictBadgeLabel = hasVotesInGroup ? 'Nhiều vote nhất' : 'Cao nhất';

@@ -18,8 +18,8 @@ export default function TripNavigation({ activeTab, onChange }: Props) {
         <Tab value="overview" label="Tổng quan" sx={{ textTransform: 'none', fontWeight: 600 }} />
         <Tab value="itinerary" label="Lịch trình" sx={{ textTransform: 'none', fontWeight: 600 }} />
         <Tab value="expenses" label="Chi phí" sx={{ textTransform: 'none', fontWeight: 600 }} />
-        <Tab value="checklist" label="Check list" sx={{ textTransform: 'none', fontWeight: 600 }} />
-        <Tab value="files" label="Tệp tin" sx={{ textTransform: 'none', fontWeight: 600 }} />
+        <Tab value="checklist" label="Danh sách chuẩn bị" sx={{ textTransform: 'none', fontWeight: 600 }} />
+        <Tab value="files" label="Tài liệu" sx={{ textTransform: 'none', fontWeight: 600 }} />
       </Tabs>
     </Paper>
   );

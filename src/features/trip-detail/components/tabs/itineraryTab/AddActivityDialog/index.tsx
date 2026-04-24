@@ -75,7 +75,7 @@ const ActivityDialog: React.FC<Props> = ({
       if (group.length === 1) {
         total += group[0].estimatedCost || group[0].estimated_cost || 0;
       } else {
-        const approved = group.filter((a: any) => a.status === 'APPROVED' || a.status === 'APPROVE');
+        const approved = group.filter((a: any) => a.status === 'APPROVED');
         const candidates = approved.length >= 1 ? approved : group;
         const pick = candidates.reduce((max: any, a: any) =>
           (a.estimatedCost || a.estimated_cost) > (max.estimatedCost || max.estimated_cost) ? a : max

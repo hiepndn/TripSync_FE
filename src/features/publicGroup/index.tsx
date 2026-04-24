@@ -430,7 +430,7 @@ export default function PublicGroupPage() {
                                     fontSize: '0.75rem',
                                   }}
                                 />
-                                {act.status === 'APPROVE' && (
+                                {act.status === 'APPROVED' && (
                                   <Chip
                                     label="Đã chốt"
                                     size="small"

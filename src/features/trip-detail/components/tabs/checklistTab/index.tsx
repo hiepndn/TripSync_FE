@@ -153,7 +153,7 @@ export default function ChecklistTab() {
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
         <Box sx={{width: 1}}>
-          <Typography variant="h5" color="text.primary">Checklist hành lý và chuẩn bị</Typography>
+          <Typography variant="h5" color="text.primary">Danh sách chuẩn bị</Typography>
           <Stack direction="row" alignItems="center" spacing={2} mt={1}>
             <LinearProgress 
               variant="determinate" value={progress} 
