@@ -179,10 +179,8 @@ export default function DocumentsTab() {
 
     setUploading(true);
     try {
-      // 1. Build file path
-      const ext = selectedFile.name.split('.').pop();
-      const safeName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const filePath = `groups/${groupId}/${uuidv4()}_${safeName}`;
+      // 1. Build file path — dùng UUID prefix để tránh trùng tên, giữ nguyên tên gốc tiếng Việt
+      const filePath = `groups/${groupId}/${uuidv4()}_${selectedFile.name}`;
 
       // 2. Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage

@@ -5,7 +5,8 @@ import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
 import { useAppSelector } from '../../app/store';
-import { fetchGroupDetailAction } from './redux/action';
+import { fetchGroupDetailAction, fetchActivitiesAction } from './redux/action';
+import { useGroupWebSocket } from '@/hooks/useGroupWebSocket';
 
 import TripHeader from './components/tripHeader';
 import TripNavigation from './components/tripNavigation';
@@ -23,35 +24,56 @@ export default function TripDetailIndex() {
   const [activeTab, setActiveTab] = useState('itinerary');
 
   const { groupDetail, loading } = useAppSelector((state: any) => state.tripDetail);
+  const isAIGenerating = groupDetail?.is_ai_generating ?? false;
 
-  // Ref để tránh báo lỗi cũ khi mới vào trang
   const prevAiError = useRef<string>('');
 
-  // useEffect 1: Fetch lần đầu khi vào trang
+  // ===== Fetch lần đầu khi vào trang =====
   useEffect(() => {
     if (!id) return;
     dispatch(fetchGroupDetailAction(id) as any);
   }, [id, dispatch]);
 
-  // useEffect 2: Bật/tắt interval polling khi is_ai_generating thay đổi
-  // Chỉ chạy sau khi đã có groupDetail từ lần fetch đầu
-  useEffect(() => {
-    if (!id || !groupDetail) return;
+  // ===== WebSocket: lắng nghe event AI từ BE =====
+  // Chỉ kết nối khi AI đang generating — tự động ngắt khi xong
+  useGroupWebSocket(id, isAIGenerating, {
+    onAIDone: () => {
+      // Fetch lại group detail để cập nhật is_ai_generating = false
+      dispatch(fetchGroupDetailAction(id!) as any);
+      // Fetch luôn activities để hiện lịch trình mới
+      dispatch(fetchActivitiesAction(id!) as any);
+    },
+    onAIError: (payload) => {
+      const msg = payload?.message || 'AI gặp sự cố khi tạo lịch trình. Vui lòng thử lại sau.';
+      enqueueSnackbar(msg, {
+        variant: 'error',
+        autoHideDuration: 8000,
+        anchorOrigin: { vertical: 'top', horizontal: 'center' },
+      });
+      dispatch(fetchGroupDetailAction(id!) as any);
+    },
+  });
 
-    if (!groupDetail.is_ai_generating) return; // AI đã xong, không cần poll
+  // ===== Fallback polling (5s) — dự phòng nếu WS bị block/proxy =====
+  // Chỉ chạy khi AI đang generating VÀ WebSocket không available
+  useEffect(() => {
+    if (!id || !isAIGenerating) return;
+
+    // Kiểm tra WebSocket có available không
+    const wsSupported = typeof WebSocket !== 'undefined';
+    if (wsSupported) return; // WS đang handle, không cần poll
 
     const intervalId = setInterval(() => {
       dispatch(fetchGroupDetailAction(id) as any);
     }, 5000);
 
     return () => clearInterval(intervalId);
-  }, [id, dispatch, groupDetail?.is_ai_generating]);
+  }, [id, dispatch, isAIGenerating]);
 
-  // useEffect 3: Phát hiện lỗi Gemini qua field ai_error sau khi polling xong
+  // ===== Hiển thị lỗi AI từ field ai_error =====
   useEffect(() => {
     if (!groupDetail) return;
     const currentError = groupDetail.ai_error || '';
-    // Chỉ hiện snackbar khi lỗi mới xuất hiện (khác với lần trước và không rỗng)
     if (currentError && currentError !== prevAiError.current) {
       enqueueSnackbar(currentError, {
         variant: 'error',
@@ -62,11 +84,11 @@ export default function TripDetailIndex() {
     prevAiError.current = currentError;
   }, [groupDetail?.ai_error]);
 
-  const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
+  const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);
   };
 
-  // Đang fetch lần đầu: chưa có groupDetail → show spinner
+  // Loading lần đầu
   if (loading && !groupDetail) {
     return (
       <Box
@@ -76,48 +98,16 @@ export default function TripDetailIndex() {
           justifyContent: 'center',
           alignItems: 'center',
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          top: 0, left: 0, right: 0, bottom: 0,
           gap: 2,
         }}
       >
-        <Box
-          sx={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {/* Vòng ngoài mờ */}
-          <CircularProgress
-            size={64}
-            thickness={2}
-            sx={{ color: '#d1fae5', position: 'absolute' }}
-            variant="determinate"
-            value={100}
-          />
-          {/* Vòng trong chạy */}
-          <CircularProgress
-            size={64}
-            thickness={3}
-            sx={{
-              color: '#19e66b',
-              animationDuration: '900ms',
-            }}
-          />
+        <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <CircularProgress size={64} thickness={2} sx={{ color: '#d1fae5', position: 'absolute' }} variant="determinate" value={100} />
+          <CircularProgress size={64} thickness={3} sx={{ color: '#19e66b', animationDuration: '900ms' }} />
         </Box>
         <Box sx={{ textAlign: 'center' }}>
-          <Box
-            sx={{
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              color: '#374151',
-              letterSpacing: '0.02em',
-            }}
-          >
+          <Box sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#374151', letterSpacing: '0.02em' }}>
             Đang tải chuyến đi...
           </Box>
           <Box sx={{ fontSize: '0.78rem', color: '#9ca3af', mt: 0.5 }}>
@@ -131,16 +121,13 @@ export default function TripDetailIndex() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f9fafb', pb: 4 }}>
       <Container maxWidth="lg" sx={{ pt: 3 }}>
-
         <TripHeader />
         <TripNavigation activeTab={activeTab} onChange={handleChangeTab} />
 
         <Box sx={{ mt: 3 }}>
-          {groupDetail?.is_ai_generating ? (
-            // AI đang chạy ngầm → hiện Banner loading
+          {isAIGenerating ? (
             <AiGeneratingBanner />
           ) : (
-            // AI xong → hiện nội dung Tab bình thường
             <>
               {activeTab === 'itinerary' && <ItineraryTab />}
               {activeTab === 'expenses' && <ExpenseTab />}
@@ -150,7 +137,6 @@ export default function TripDetailIndex() {
             </>
           )}
         </Box>
-
       </Container>
     </Box>
   );
