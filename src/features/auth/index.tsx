@@ -24,14 +24,17 @@ import { useDispatch } from 'react-redux';
 import { loginAction, registerAction } from './redux/actions';
 import { useSnackbar } from 'notistack';
 import { getTokenRole } from '@/config/jwt';
+import { useAppSelector } from '@/app/store';
+import { CircularProgress } from '@mui/material';
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('jwt');
-  const [tabIndex, setTabIndex] = useState(0); // 0: Đăng nhập, 1: Đăng ký
+  const [tabIndex, setTabIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch<any>();
   const { enqueueSnackbar } = useSnackbar();
+  const { loading } = useAppSelector((state) => state.auth);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -313,12 +316,14 @@ const AuthPage = () => {
                   sx={{
                     bgcolor: '#19e66b',
                     color: '#111814',
-                    fontWeight: 700,
                     '&:hover': { bgcolor: '#16d360' },
                   }}
                   type="submit"
+                  disabled={loading}
                 >
-                  {tabIndex === 0 ? 'Đăng nhập' : 'Đăng ký'}
+                  {loading ? (
+                    <CircularProgress size={22} sx={{ color: '#111814' }} />
+                  ) : tabIndex === 0 ? 'Đăng nhập' : 'Đăng ký'}
                 </Button>
               </Stack>
             </form>
