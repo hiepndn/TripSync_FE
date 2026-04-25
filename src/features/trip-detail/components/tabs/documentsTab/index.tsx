@@ -196,6 +196,9 @@ export default function DocumentsTab() {
       const { data: urlData } = supabase.storage.from('trip_sync_storage').getPublicUrl(filePath);
       const publicUrl = urlData.publicUrl;
 
+      // Lấy extension từ tên file
+      const ext = selectedFile.name.split('.').pop()?.toLowerCase() ?? '';
+
       // 4. Save metadata to BE
       const { response, error: apiError } = await apiCall({
         method: 'POST',
