@@ -77,15 +77,16 @@ export default function TripHeader() {
       const { response } = await apiCall({
         method: 'GET',
         url: ENDPOINTS.ACTIVITY.EXPORT(groupDetail.id),
+        responseType: 'blob', // Important for downloading files
       });
       if (response?.status === 200) {
-        const blob = new Blob([JSON.stringify(response.data, null, 2)], {
-          type: 'application/json',
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${groupDetail.name}_itinerary.json`;
+        a.download = `${groupDetail.name}_itinerary.xlsx`;
         a.click();
         URL.revokeObjectURL(url);
         enqueueSnackbar('Xuất lịch trình thành công!', { variant: 'success' });

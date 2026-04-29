@@ -15,6 +15,7 @@ import {
   Stack,
   Tabs,
   Tab,
+  Alert,
 } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -42,7 +43,7 @@ interface Props {
 export default function ImportItineraryDialog({ open, onClose, sourceGroupId, onSuccess }: Props) {
   const { enqueueSnackbar } = useSnackbar();
 
-  // Tab: 0 = chọn nhóm nguồn, 1 = import file JSON
+  // Tab: 0 = chọn nhóm nguồn, 1 = import file Excel
   const [activeTab, setActiveTab] = useState(0);
 
   // Groups
@@ -107,6 +108,9 @@ export default function ImportItineraryDialog({ open, onClose, sourceGroupId, on
 
   const handleConfirmTab0 = async () => {
     if (!canConfirmTab0) return;
+    
+    enqueueSnackbar('Đang ghi đè lịch trình...', { variant: 'warning' });
+    
     setImporting(true);
     setImportError(null);
     try {
@@ -131,27 +135,24 @@ export default function ImportItineraryDialog({ open, onClose, sourceGroupId, on
 
   const handleConfirmTab1 = async () => {
     if (!canConfirmTab1 || !jsonFile) return;
+
+    enqueueSnackbar('Đang ghi đè lịch trình...', { variant: 'warning' });
+
     setImporting(true);
     setImportError(null);
     try {
-      const text = await jsonFile.text();
-      const parsed = JSON.parse(text);
-      // Support both { activities: [...] } and [...] directly
-      const activities = Array.isArray(parsed)
-        ? parsed
-        : parsed?.data?.activities ?? parsed?.activities ?? [];
-
-      if (!Array.isArray(activities) || activities.length === 0) {
-        setImportError('File JSON không hợp lệ hoặc không có hoạt động nào.');
-        setImporting(false);
-        return;
-      }
+      const formData = new FormData();
+      formData.append('file', jsonFile);
 
       const { response } = await apiCall({
         method: 'POST',
-        url: ENDPOINTS.ACTIVITY.IMPORT_JSON(jsonTarget as number),
-        payload: { activities },
+        url: ENDPOINTS.ACTIVITY.IMPORT_EXCEL(jsonTarget as number),
+        payload: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
+      
       if (response?.status === 200) {
         onSuccess(response.data?.imported_count ?? 0);
         onClose();
@@ -160,7 +161,7 @@ export default function ImportItineraryDialog({ open, onClose, sourceGroupId, on
         setImportError(msg);
       }
     } catch {
-      setImportError('File JSON không hợp lệ hoặc lỗi kết nối.');
+      setImportError('File Excel không hợp lệ hoặc lỗi kết nối.');
     } finally {
       setImporting(false);
     }
@@ -199,7 +200,7 @@ export default function ImportItineraryDialog({ open, onClose, sourceGroupId, on
           }}
         >
           <Tab label="Chọn nhóm nguồn" />
-          <Tab label="Import từ file JSON" />
+          <Tab label="Import từ file Excel" />
         </Tabs>
 
         {loadingGroups ? (
@@ -208,6 +209,9 @@ export default function ImportItineraryDialog({ open, onClose, sourceGroupId, on
           </Box>
         ) : (
           <>
+            <Alert severity="warning" sx={{ mb: 2, borderRadius: 2, fontWeight: 500 }}>
+              <strong>Lưu ý quan trọng:</strong> Import lịch trình mới sẽ xoá toàn bộ lịch trình hiện tại của nhóm đích.
+            </Alert>
             {/* ── Tab 0: chọn nhóm nguồn ── */}
             {activeTab === 0 && (
               <Stack spacing={2.5}>
@@ -253,11 +257,11 @@ export default function ImportItineraryDialog({ open, onClose, sourceGroupId, on
               </Stack>
             )}
 
-            {/* ── Tab 1: import file JSON ── */}
+            {/* ── Tab 1: import file Excel ── */}
             {activeTab === 1 && (
               <Stack spacing={2.5}>
                 <Typography variant="body2" color="text.secondary">
-                  Chọn file JSON đã xuất từ TripSync để import vào nhóm đích.
+                  Chọn file Excel đã xuất từ TripSync để import vào nhóm đích.
                 </Typography>
 
                 {/* File picker */}
@@ -277,7 +281,7 @@ export default function ImportItineraryDialog({ open, onClose, sourceGroupId, on
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".json,application/json"
+                    accept=".xlsx, .xls"
                     style={{ display: 'none' }}
                     onChange={(e) => {
                       const f = e.target.files?.[0] ?? null;
@@ -290,7 +294,7 @@ export default function ImportItineraryDialog({ open, onClose, sourceGroupId, on
                   {jsonFile ? (
                     <Typography variant="body2" fontWeight={700} color="#16a34a">{jsonFile.name}</Typography>
                   ) : (
-                    <Typography variant="body2" color="text.secondary">Click để chọn file JSON</Typography>
+                    <Typography variant="body2" color="text.secondary">Click để chọn file Excel</Typography>
                   )}
                 </Box>
 

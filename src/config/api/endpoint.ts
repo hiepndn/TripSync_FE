@@ -35,7 +35,7 @@ export const ENDPOINTS = {
       `/api/groups/${groupId}/activities/suggestions`,
     EXPORT: (groupId: string | number) => `/api/groups/${groupId}/export`,
     IMPORT: (groupId: string | number) => `/api/groups/${groupId}/import`,
-    IMPORT_JSON: (groupId: string | number) => `/api/groups/${groupId}/import-json`,
+    IMPORT_EXCEL: (groupId: string | number) => `/api/groups/${groupId}/import-excel`,
   },
   USER: {
     GET_PROFILE: '/api/auth/me',
