@@ -91,19 +91,21 @@ export default function ItineraryTab() {
       <Grid size={{ xs: 12, md: 8 }}>
         <Stack spacing={2}>
           {/* Day selector + action buttons */}
-          <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-            <Box flex={1} overflow="hidden">
-              <DaySelector
-                days={tripDays}
-                selectedDate={selectedDate}
-                onSelectDate={setSelectedDate}
-              />
-            </Box>
-            <Stack direction="row" spacing={1} flexShrink={0}>
+          <Stack spacing={1.5}>
+            {/* DaySelector — full width */}
+            <DaySelector
+              days={tripDays}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+
+            {/* Buttons — song song nhau, full width trên mobile / auto trên desktop */}
+            <Stack direction="row" spacing={1}>
               <Button
                 variant="outlined"
                 size="small"
                 onClick={() => setOpenAddModal(true)}
+                fullWidth={true}
                 sx={{
                   color: '#16a34a',
                   borderColor: '#16a34a',
@@ -111,7 +113,7 @@ export default function ItineraryTab() {
                   borderRadius: 2,
                   textTransform: 'none',
                   fontWeight: 600,
-                  whiteSpace: 'nowrap',
+                  maxWidth: { md: 'fit-content' },
                 }}
               >
                 + Đề xuất
@@ -121,9 +123,15 @@ export default function ItineraryTab() {
                   variant="outlined"
                   size="small"
                   color="error"
+                  fullWidth={true}
                   startIcon={<DeleteSweepIcon />}
                   onClick={() => setOpenDeleteAllDialog(true)}
-                  sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    maxWidth: { md: 'fit-content' },
+                  }}
                 >
                   Xóa tất cả
                 </Button>

@@ -435,6 +435,7 @@ export default function DocumentsTab() {
 
       {/* ── Document grid ── */}
       {!documentsLoading && filteredDocs.length > 0 && (
+        <Box sx={{ maxHeight: 600, overflowY: 'auto', pr: 0.5 }}>
         <Grid container spacing={2}>
           {filteredDocs.map((doc: any) => (
             <Grid key={doc.id} size={{ xs: 12, sm: 6, md: 4 }}>
@@ -551,6 +552,7 @@ export default function DocumentsTab() {
             </Grid>
           ))}
         </Grid>
+        </Box>
       )}
 
       {/* ── Delete confirm dialog ── */}

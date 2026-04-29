@@ -25,6 +25,7 @@ export default function RecentActivityCard() {
             Chưa có công việc nào được hoàn thành gần đây.
          </Typography>
       ) : (
+        <Box sx={{ maxHeight: 280, overflowY: 'auto' }}>
         <Stack spacing={2.5}>
             {recentActivities.map((act: any) => (
                 <Stack key={act.id} direction="row" alignItems="center" spacing={1.5}>
@@ -43,6 +44,7 @@ export default function RecentActivityCard() {
                Xem tất cả
             </Link>
         </Stack>
+        </Box>
       )}
     </Card>
   );

@@ -11,13 +11,14 @@ import {
   CircularProgress,
   Typography,
   IconButton,
-  MenuItem, // 🌟 Nhớ import thêm MenuItem cho Select
+  MenuItem,
 } from '@mui/material';
 import { FlightTakeoff, Close } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import { useSnackbar } from 'notistack';
 import { useAppSelector } from '../../../../app/store';
 import { createGroupAction } from '../../redux/action';
+import VietnamLocationPicker, { SelectedLocation } from '@/components/VietnamLocationPicker';
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -34,6 +35,7 @@ const AddGroupDialog: React.FC<Props> = ({ open, onClose, onSuccess }) => {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const { loading } = useAppSelector((state) => state.groups);
+  const [selectedLocations, setSelectedLocations] = React.useState<SelectedLocation[]>([]);
 
   const formik = useFormik({
     initialValues: {
@@ -41,7 +43,6 @@ const AddGroupDialog: React.FC<Props> = ({ open, onClose, onSuccess }) => {
       description: '',
       start_date: '',
       end_date: '',
-      // 🌟 5 TRƯỜNG DỮ LIỆU MỚI CHO AI
       departure_location: '',
       route_destinations: '',
       accommodation_pref: 'HOTEL',
@@ -58,14 +59,17 @@ const AddGroupDialog: React.FC<Props> = ({ open, onClose, onSuccess }) => {
         errors.end_date = 'Ngày về không được trước ngày đi!';
       }
       if (!values.departure_location) errors.departure_location = 'Vui lòng nhập điểm xuất phát!';
-      if (!values.route_destinations) errors.route_destinations = 'Vui lòng nhập điểm đến!';
+      if (selectedLocations.length === 0) errors.route_destinations = 'Vui lòng chọn ít nhất 1 điểm đến!';
       if (values.expected_members < 1) errors.expected_members = 'Số người phải lớn hơn 0!';
       if (values.budget_per_person < 0) errors.budget_per_person = 'Ngân sách không hợp lệ!';
       return errors;
     },
     onSubmit: (values, { resetForm }) => {
+      // Chuyển selectedLocations thành chuỗi cho BE: "Quận 1, TP. Hồ Chí Minh; Đà Nẵng"
+      const routeDestinations = selectedLocations.map((l) => l.label).join(', ');
       const payloadToSend = {
         ...values,
+        route_destinations: routeDestinations,
         start_date: values.start_date ? `${values.start_date}T00:00:00+07:00` : '',
         end_date: values.end_date ? `${values.end_date}T23:59:59+07:00` : '',
       };
@@ -78,12 +82,12 @@ const AddGroupDialog: React.FC<Props> = ({ open, onClose, onSuccess }) => {
               autoHideDuration: 3000,
             });
             resetForm();
+            setSelectedLocations([]);
             onClose();
             onSuccess();
           },
           (result: any) => {
             const errMsg = typeof result.response === 'string' ? result.response : 'Có lỗi xảy ra, vui lòng thử lại!';
-            console.log('Lỗi khi tạo chuyến đi:', result);
             enqueueSnackbar(errMsg || 'Có lỗi xảy ra, vui lòng thử lại!', { variant: 'error' });
           }
         ) as any
@@ -163,27 +167,21 @@ const AddGroupDialog: React.FC<Props> = ({ open, onClose, onSuccess }) => {
                 error={formik.touched.departure_location && Boolean(formik.errors.departure_location)}
                 helperText={
                   (formik.touched.departure_location && formik.errors.departure_location) ||
-                  "🚀 Bạn đang xuất phát từ đâu? VD: Hà Nội"
+                  "Bạn đang xuất phát từ đâu? VD: Hà Nội"
                 }
                 fullWidth
                 sx={inputStyle}
               />
 
-              {/* 🌟 THÊM: HÀNH TRÌNH */}
-              <TextField
-                label="Hành trình (Các điểm đến)"
-                placeholder="VD: Sóc Sơn, Hà Nội; Huế; Đà Nẵng"
-                name="route_destinations"
-                value={formik.values.route_destinations}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.route_destinations && Boolean(formik.errors.route_destinations)}
+              {/* HÀNH TRÌNH — Autocomplete tỉnh/quận */}
+              <VietnamLocationPicker
+                value={selectedLocations}
+                onChange={setSelectedLocations}
+                error={formik.submitCount > 0 && selectedLocations.length === 0}
                 helperText={
-                  (formik.touched.route_destinations && formik.errors.route_destinations) || 
-                  "🌟 Nhập định dạng 'Huyện, Tỉnh' để AI gợi ý khách sạn chuẩn nhất"
+                  formik.submitCount > 0 && selectedLocations.length === 0
+                    ? 'Vui lòng chọn ít nhất 1 điểm đến!' : ''
                 }
-                fullWidth
-                sx={inputStyle}
               />
 
               {/* NGÀY ĐI - NGÀY VỀ */}

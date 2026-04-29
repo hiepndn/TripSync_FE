@@ -12,6 +12,7 @@ import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { apiCall } from '@/config/api';
 import { ENDPOINTS } from '@/config/api/endpoint';
+import VietnamLocationPicker, { SelectedLocation } from '@/components/VietnamLocationPicker';
 
 export default function GroupInfoCard() {
   const { id } = useParams<{ id: string }>();
@@ -22,26 +23,35 @@ export default function GroupInfoCard() {
 
   const [formData, setFormData] = useState({
     name: '',
-    route_destinations: '',
     departure_location: '',
     start_date: '',
     end_date: '',
     description: '',
   });
+  const [selectedLocations, setSelectedLocations] = useState<SelectedLocation[]>([]);
   const [saving, setSaving] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
   const [visibilityLoading, setVisibilityLoading] = useState(false);
+
+  // Parse chuỗi "Quận 1, TP. Hồ Chí Minh, Đà Nẵng" → SelectedLocation[]
+  const parseRouteDestinations = (raw: string): SelectedLocation[] => {
+    if (!raw) return [];
+    return raw.split(',').map((s) => s.trim()).filter(Boolean).map((label) => ({
+      id: label.toLowerCase().replace(/\s+/g, '-'),
+      label,
+    }));
+  };
 
   useEffect(() => {
     if (groupDetail) {
       setFormData({
         name: groupDetail.name ?? '',
-        route_destinations: groupDetail.route_destinations ?? '',
         departure_location: groupDetail.departure_location ?? '',
         start_date: groupDetail.start_date ? dayjs(groupDetail.start_date).format('YYYY-MM-DD') : '',
         end_date: groupDetail.end_date ? dayjs(groupDetail.end_date).format('YYYY-MM-DD') : '',
         description: groupDetail.description ?? '',
       });
+      setSelectedLocations(parseRouteDestinations(groupDetail.route_destinations ?? ''));
       setIsPublic(groupDetail.is_public ?? false);
     }
   }, [groupDetail]);
@@ -52,25 +62,37 @@ export default function GroupInfoCard() {
 
   const handleCancel = () => {
     if (!groupDetail) return;
+    setDateError('');
     setFormData({
       name: groupDetail.name ?? '',
-      route_destinations: groupDetail.route_destinations ?? '',
       departure_location: groupDetail.departure_location ?? '',
       start_date: groupDetail.start_date ? dayjs(groupDetail.start_date).format('YYYY-MM-DD') : '',
       end_date: groupDetail.end_date ? dayjs(groupDetail.end_date).format('YYYY-MM-DD') : '',
       description: groupDetail.description ?? '',
     });
+    setSelectedLocations(parseRouteDestinations(groupDetail.route_destinations ?? ''));
   };
 
+  const [dateError, setDateError] = useState<string>('');
+
   const handleSave = () => {
+    // Validate ngày trước khi gọi API
+    if (formData.start_date && formData.end_date) {
+      if (new Date(formData.end_date) < new Date(formData.start_date)) {
+        setDateError('Ngày kết thúc không được trước ngày bắt đầu!');
+        return;
+      }
+    }
+    setDateError('');
     setSaving(true);
+    const routeDestinations = selectedLocations.map((l) => l.label).join(', ');
     const payload = {
       name: formData.name,
       description: formData.description,
       start_date: formData.start_date ? new Date(formData.start_date).toISOString() : undefined,
       end_date: formData.end_date ? new Date(formData.end_date).toISOString() : undefined,
       departure_location: formData.departure_location,
-      route_destinations: formData.route_destinations,
+      route_destinations: routeDestinations,
     };
     dispatch(
       updateGroupAction(
@@ -177,13 +199,30 @@ export default function GroupInfoCard() {
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              label="Điểm đến"
+              label="Điểm xuất phát"
               fullWidth
               size="small"
-              value={formData.route_destinations}
-              onChange={handleChange('route_destinations')}
+              value={formData.departure_location}
+              onChange={handleChange('departure_location')}
               disabled={!isAdmin}
             />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            {isAdmin ? (
+              <VietnamLocationPicker
+                value={selectedLocations}
+                onChange={setSelectedLocations}
+                label="Hành trình (Các điểm đến)"
+              />
+            ) : (
+              <TextField
+                label="Hành trình (Các điểm đến)"
+                fullWidth
+                size="small"
+                value={selectedLocations.map((l) => l.label).join(', ')}
+                disabled
+              />
+            )}
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
@@ -192,7 +231,7 @@ export default function GroupInfoCard() {
               fullWidth
               size="small"
               value={formData.start_date}
-              onChange={handleChange('start_date')}
+              onChange={(e) => { handleChange('start_date')(e as any); setDateError(''); }}
               disabled={!isAdmin}
               InputLabelProps={{ shrink: true }}
             />
@@ -204,9 +243,11 @@ export default function GroupInfoCard() {
               fullWidth
               size="small"
               value={formData.end_date}
-              onChange={handleChange('end_date')}
+              onChange={(e) => { handleChange('end_date')(e as any); setDateError(''); }}
               disabled={!isAdmin}
               InputLabelProps={{ shrink: true }}
+              error={!!dateError}
+              helperText={dateError || undefined}
             />
           </Grid>
           <Grid size={{ xs: 12 }}>

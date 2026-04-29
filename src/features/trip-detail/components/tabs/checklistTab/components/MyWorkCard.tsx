@@ -35,6 +35,7 @@ export default function MyWorkCard() {
              Tuyệt vời! Bạn không còn công việc nào bị tồn đọng.
           </Typography>
       ) : (
+          <Box sx={{ maxHeight: 280, overflowY: 'auto' }}>
           <Stack divider={<BackpackIcon sx={{ color: '#e2e8f0', fontSize: '1.2rem', my: 1 }} />} spacing={0.5}>
               {myWork.map((work: any) => (
                   <Stack key={work.id} direction="row" alignItems="center" justifyContent="space-between">
@@ -42,7 +43,6 @@ export default function MyWorkCard() {
                          <Typography variant="subtitle2" fontWeight={700}>{work.title}</Typography>
                          <Typography variant="caption" color="text.secondary">{work.category}</Typography>
                       </Box>
-                      {/* Bấm nút này là gọi API hoàn thành luôn */}
                       <IconButton 
                         size="small" 
                         onClick={() => dispatch(toggleChecklistAction(id || '', work.id) as any)}
@@ -56,6 +56,7 @@ export default function MyWorkCard() {
                  Xem tất cả
               </Link>
           </Stack>
+          </Box>
       )}
     </Card>
   );

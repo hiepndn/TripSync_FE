@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box,
   Card,
@@ -7,11 +7,15 @@ import {
   Divider,
   Chip,
   LinearProgress,
+  Collapse,
+  IconButton,
 } from '@mui/material';
 import HotelIcon from '@mui/icons-material/Hotel';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AttractionsIcon from '@mui/icons-material/Attractions';
 import NightShelterIcon from '@mui/icons-material/NightShelter';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useAppSelector } from '@/app/store';
 
 const typeIcon: Record<string, React.ReactNode> = {
@@ -33,6 +37,7 @@ const formatMoney = (val: number, currency = 'VND') =>
 
 export default function EstimatedCostCard() {
   const { activities, groupDetail } = useAppSelector((state: any) => state.tripDetail);
+  const [expanded, setExpanded] = useState(false);
 
   // Chỉ lấy các activities có estimated_cost > 0 (cả PENDING & APPROVED)
   const activitiesWithCost = useMemo(
@@ -119,7 +124,10 @@ export default function EstimatedCostCard() {
       }}
     >
       {/* Header */}
-      <Box sx={{ p: 3, pb: 2, borderBottom: '1px solid', borderColor: 'grey.100' }}>
+      <Box
+        sx={{ p: 3, pb: 2, borderBottom: expanded ? '1px solid' : 'none', borderColor: 'grey.100', cursor: 'pointer' }}
+        onClick={() => setExpanded((v) => !v)}
+      >
         <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
           <Box>
             <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
@@ -129,18 +137,23 @@ export default function EstimatedCostCard() {
               {formatMoney(totalEstimated, currency)}
             </Typography>
           </Box>
-          {totalBudget > 0 && (
-            <Chip
-              label={isOverBudget ? '⚠️ Vượt ngân sách' : '✅ Trong ngân sách'}
-              size="small"
-              sx={{
-                bgcolor: isOverBudget ? '#fee2e2' : '#dcfce7',
-                color: isOverBudget ? '#dc2626' : '#16a34a',
-                fontWeight: 700,
-                fontSize: '0.7rem',
-              }}
-            />
-          )}
+          <Stack direction="row" alignItems="center" spacing={1}>
+            {totalBudget > 0 && (
+              <Chip
+                label={isOverBudget ? '⚠️ Vượt ngân sách' : '✅ Trong ngân sách'}
+                size="small"
+                sx={{
+                  bgcolor: isOverBudget ? '#fee2e2' : '#dcfce7',
+                  color: isOverBudget ? '#dc2626' : '#16a34a',
+                  fontWeight: 700,
+                  fontSize: '0.7rem',
+                }}
+              />
+            )}
+            <IconButton size="small" sx={{ color: '#94a3b8' }}>
+              {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          </Stack>
         </Stack>
 
         {/* Thanh tiến trình so ngân sách */}
@@ -171,8 +184,9 @@ export default function EstimatedCostCard() {
         )}
       </Box>
 
-      {/* Danh sách chi tiết */}
-      <Box sx={{ maxHeight: 320, overflowY: 'auto' }}>
+      {/* Danh sách chi tiết — đóng/mở */}
+      <Collapse in={expanded}>
+        <Box sx={{ maxHeight: 320, overflowY: 'auto' }}>
         <Stack divider={<Divider />}>
         {deduplicatedActivities.map((act: any) => {
           const cost = act.estimatedCost || act.estimated_cost;
@@ -240,6 +254,7 @@ export default function EstimatedCostCard() {
         })}
         </Stack>
       </Box>
+      </Collapse>
     </Card>
   );
 }

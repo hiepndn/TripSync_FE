@@ -151,19 +151,25 @@ export default function ChecklistTab() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-        <Box sx={{width: 1}}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        mb={4}
+        gap={2}
+      >
+        <Box sx={{ width: 1 }}>
           <Typography variant="h5" color="text.primary">Danh sách chuẩn bị</Typography>
           <Stack direction="row" alignItems="center" spacing={2} mt={1}>
-            <LinearProgress 
-              variant="determinate" value={progress} 
-              sx={{ width: 200, height: 8, borderRadius: 4, bgcolor: '#e2e8f0', '& .MuiLinearProgress-bar': { bgcolor: '#22c55e' } }} 
+            <LinearProgress
+              variant="determinate" value={progress}
+              sx={{ width: { xs: 140, sm: 200 }, height: 8, borderRadius: 4, bgcolor: '#e2e8f0', '& .MuiLinearProgress-bar': { bgcolor: '#22c55e' } }}
             />
             <Typography variant="body2" color="#22c55e" fontWeight={700}>{progress}% hoàn thành</Typography>
           </Stack>
         </Box>
 
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1.5} flexShrink={0}>
           {/* 🌟 NÚT LỌC (FILTER) */}
           <Button 
             variant="outlined" 
@@ -256,6 +262,7 @@ export default function ChecklistTab() {
                   </Stack>
 
                   <Card sx={{ borderRadius: 4, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', p: 1 }}>
+                    <Box sx={{ maxHeight: 320, overflowY: 'auto' }}>
                     <Stack divider={<BackpackIcon sx={{ color: '#e2e8f0', fontSize: '1.2rem', my: 1, opacity: 0 }} />}>
                       {items.map((item: any) => (
                         <Stack key={item.id} direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2, '&:hover': { bgcolor: '#f8fafc' }, borderRadius: 3, transition: 'all 0.2s' }}>
@@ -301,7 +308,7 @@ export default function ChecklistTab() {
                         </Stack>
                       ))}
                     </Stack>
-                    
+                    </Box>
                     <ChecklistItemInput groupId={id || ''} categoryName={category} />
                   </Card>
                 </Box>

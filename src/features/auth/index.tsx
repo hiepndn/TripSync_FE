@@ -147,22 +147,21 @@ const AuthPage = () => {
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             width: '100%',
-            minHeight: 600,
+            minHeight: { md: 600 },
             borderRadius: 4,
             overflow: 'hidden',
           }}
         >
-          {/* Cột trái: Ảnh Cover */}
+          {/* Cột trái: Ảnh Cover — ẩn trên mobile */}
           <Box
             sx={{
-              flex: { xs: 'none', md: 1 },
-              height: { xs: 200, md: 'auto' },
+              display: { xs: 'none', md: 'flex' },
+              flex: 1,
               backgroundImage: `url(${travelImg})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               position: 'relative',
               p: 6,
-              display: 'flex',
               flexDirection: 'column',
               justifyContent: 'flex-end',
             }}
@@ -188,7 +187,7 @@ const AuthPage = () => {
           </Box>
 
           {/* Cột phải: Form Đăng nhập / Đăng ký */}
-          <Box sx={{ flex: { xs: 'none', md: 1 }, p: { xs: 4, md: 8 }, bgcolor: 'white' }}>
+          <Box sx={{ flex: 1, p: { xs: 3, sm: 5, md: 8 }, bgcolor: 'white' }}>
             <Typography variant="h4" color="#111814" mb={1}>
               Chào mừng trở lại!
             </Typography>

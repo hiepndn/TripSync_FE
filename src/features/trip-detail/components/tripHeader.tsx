@@ -104,7 +104,7 @@ export default function TripHeader() {
       <Box
         sx={{
           position: 'relative',
-          height: 280, // Chiều cao banner
+          height: { xs: 320, md: 280 },
           borderRadius: 4,
           overflow: 'hidden',
           mb: 3,
@@ -190,21 +190,37 @@ export default function TripHeader() {
         </Stack>
 
         {/* ========================================== */}
-        {/* 🌟 GÓC DƯỚI TRÁI: Thông tin cơ bản */}
+        {/* GÓC DƯỚI TRÁI: Thông tin cơ bản */}
         {/* ========================================== */}
-        <Box sx={{ position: 'absolute', bottom: 24, left: 24, color: 'white' }}>
-          <Typography variant="h3" fontWeight={700} sx={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+        <Box sx={{ position: 'absolute', bottom: 24, left: 24, right: 24, color: 'white' }}>
+          {/* Tên + mô tả */}
+          <Typography
+            variant="h3"
+            fontWeight={700}
+            sx={{
+              textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+              fontSize: { xs: '1.6rem', md: '3rem' },
+            }}
+          >
             {groupDetail.name}
           </Typography>
-          <Typography variant="subtitle1" sx={{ mt: 0.5, opacity: 0.9, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              mt: 0.5,
+              opacity: 0.9,
+              textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+              display: { xs: 'none', sm: 'block' },
+            }}
+          >
             {groupDetail.description || 'Chuyến đi tuyệt vời cùng những người bạn'}
           </Typography>
-          
+
           <Chip
             icon={<CalendarMonthIcon fontSize="small" sx={{ color: '#a78bfa !important' }} />}
             label={dateStr}
             sx={{
-              mt: 2,
+              mt: 1,
               bgcolor: 'rgba(255, 255, 255, 0.15)',
               color: 'white',
               backdropFilter: 'blur(8px)',
@@ -212,17 +228,74 @@ export default function TripHeader() {
               borderRadius: 2,
             }}
           />
+
+          {/* Nút Xuất + AI — trên mobile nằm dưới chip, desktop vẫn absolute góc phải */}
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              mt: 1.5,
+              display: { xs: 'flex', md: 'none' }, // Chỉ hiện trên mobile
+            }}
+          >
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleExport}
+              disabled={isExporting}
+              startIcon={isExporting ? <CircularProgress size={14} color="inherit" /> : <FileUploadIcon />}
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.15)',
+                backdropFilter: 'blur(12px)',
+                color: '#fff',
+                borderRadius: 2,
+                fontWeight: 700,
+                textTransform: 'none',
+                border: '1px solid rgba(255,255,255,0.2)',
+                fontSize: '0.75rem',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' },
+                '&.Mui-disabled': { opacity: 0.6, color: '#fff' },
+              }}
+            >
+              Xuất
+            </Button>
+            {isOwner && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => setOpenAiDialog(true)}
+                startIcon={<AutoAwesomeIcon sx={{ color: '#fbbf24', fontSize: '1rem' }} />}
+                sx={{
+                  bgcolor: 'rgba(17, 24, 39, 0.8)',
+                  backdropFilter: 'blur(12px)',
+                  color: '#fff',
+                  borderRadius: 2,
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  fontSize: '0.75rem',
+                  '&:hover': { bgcolor: 'rgba(17, 24, 39, 1)' },
+                }}
+              >
+                Gợi ý lại AI
+              </Button>
+            )}
+          </Stack>
         </Box>
 
         {/* ========================================== */}
-        {/* 🌟 GÓC DƯỚI PHẢI: Nút Xuất lịch trình + Nút Chạy Lại AI (Đất vàng) */}
+        {/* GÓC DƯỚI PHẢI: Nút Xuất + AI — chỉ hiện trên desktop */}
         {/* ========================================== */}
         <Stack
           direction="row"
           spacing={1.5}
-          sx={{ position: 'absolute', bottom: 24, right: 24 }}
+          sx={{
+            position: 'absolute',
+            bottom: 24,
+            right: 24,
+            display: { xs: 'none', md: 'flex' },
+          }}
         >
-          {/* Xuất lịch trình — visible to ALL members */}
           <Button
             variant="contained"
             onClick={handleExport}
@@ -244,8 +317,6 @@ export default function TripHeader() {
           >
             Xuất lịch trình
           </Button>
-
-          {/* Gợi ý lại AI — ADMIN only */}
           {isOwner && (
             <Button
               variant="contained"

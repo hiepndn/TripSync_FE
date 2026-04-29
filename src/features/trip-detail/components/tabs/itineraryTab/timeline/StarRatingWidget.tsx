@@ -55,7 +55,7 @@ const StarRatingWidget: React.FC<StarRatingWidgetProps> = ({
       />
       {averageUserRating > 0 && (
         <Typography variant="caption" color="text.secondary">
-          {averageUserRating.toFixed(1)} ★ (avg)
+          {averageUserRating.toFixed(1)} ★ (trung bình đánh giá)
         </Typography>
       )}
     </Box>

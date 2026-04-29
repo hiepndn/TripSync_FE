@@ -62,7 +62,8 @@ export default function DebtBalances({ debts, members }: Props) {
       {!debts || debts.length === 0 ? (
         <Typography textAlign="center" color="text.secondary" py={3}>Mọi người đã hòa tiền, không ai nợ ai!</Typography>
       ) : (
-        <Stack spacing={2.5}>
+        <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+          <Stack spacing={2.5}>
           {debts.filter((debt: any) => debt.amount > 0).map((debt: any, index: number) => {
             const fromUser = getUserInfo(debt.from_user_id);
             const toUser = getUserInfo(debt.to_user_id);
@@ -99,7 +100,8 @@ export default function DebtBalances({ debts, members }: Props) {
               </Box>
             );
           })}
-        </Stack>
+          </Stack>
+        </Box>
       )}
 
       {/* DIALOG XÁC NHẬN THANH TOÁN */}
