@@ -11,8 +11,11 @@ import {
   Badge,
   Menu,
   MenuItem,
+  BottomNavigation,
+  BottomNavigationAction,
+  Paper,
 } from '@mui/material';
-import { Notifications, Flight } from '@mui/icons-material';
+import { Notifications, Flight, Dashboard as DashboardIcon, FlightTakeoff, Explore, Favorite } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 // Import 3 đứa con vào
@@ -141,12 +144,41 @@ const Dashboard = () => {
       </AppBar>
 
       {/* ===== BODY: RENDER CON TƯƠNG ỨNG VỚI TAB ===== */}
-      <Box sx={{ py: 6 }}>
+      {/* Thêm pb cho mobile để không bị bottom nav che */}
+      <Box sx={{ py: 6, pb: { xs: 10, md: 6 } }}>
         {activeTab === 0 && <OverviewTab />}
         {activeTab === 1 && <MyTripsTab />}
         {activeTab === 2 && <ExploreTab />}
         {activeTab === 3 && <FavoritesTab />}
       </Box>
+
+      {/* ===== BOTTOM NAVIGATION — chỉ hiện trên mobile ===== */}
+      <Paper
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1200,
+          borderTop: '1px solid #e2e8f0',
+        }}
+        elevation={3}
+      >
+        <BottomNavigation
+          value={activeTab}
+          onChange={(_, newValue) => setActiveTab(newValue)}
+          sx={{
+            '& .MuiBottomNavigationAction-root.Mui-selected': { color: '#19e66b' },
+            '& .MuiBottomNavigationAction-root': { minWidth: 0 },
+          }}
+        >
+          <BottomNavigationAction label="Dashboard" icon={<DashboardIcon />} />
+          <BottomNavigationAction label="Của tôi" icon={<FlightTakeoff />} />
+          <BottomNavigationAction label="Khám phá" icon={<Explore />} />
+          <BottomNavigationAction label="Yêu thích" icon={<Favorite />} />
+        </BottomNavigation>
+      </Paper>
 
       {/* ===== EDIT PROFILE MODAL ===== */}
       <EditProfileModal open={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
