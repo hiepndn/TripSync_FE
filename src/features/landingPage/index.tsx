@@ -87,6 +87,9 @@ const LandingPage = () => {
   const handleClick = () => {
     navigate('/login');
   };
+  const handleDemo = () => {
+    navigate('/demo');
+  };
   useEffect(() => {
     if (token) {
       navigate('/dashboard');
@@ -243,12 +246,14 @@ const LandingPage = () => {
               <Button
                 variant="outlined"
                 size="large"
+                onClick={handleDemo}
                 sx={{
                   borderColor: '#dce5df',
                   color: '#111814',
                   fontWeight: 700,
                   py: 1.5,
                   px: 3,
+                  '&:hover': { borderColor: '#19e66b', color: '#19e66b' },
                 }}
               >
                 Xem demo

@@ -86,6 +86,11 @@ export const apiCall = async ({
             if (e.response && e.response.status === 401) {
                 console.warn('⚠️ Token hết hạn hoặc không hợp lệ. Đang đưa về trang đăng nhập...');
                 
+                // Demo mode: không redirect, trả về lỗi im lặng
+                if ((window as any).__DEMO_MODE__) {
+                    return { response: null, error: null };
+                }
+
                 // Xóa token cũ
                 localStorage.removeItem('jwt');
                 localStorage.removeItem('reft');

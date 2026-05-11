@@ -12,6 +12,7 @@ const AuthPage       = lazy(() => import('./features/auth'));
 const Dashboard      = lazy(() => import('./features/dashboard'));
 const TripDetailIndex = lazy(() => import('./features/trip-detail'));
 const PublicGroupPage = lazy(() => import('./features/publicGroup'));
+const DemoPage       = lazy(() => import('./features/demo'));
 const AdminPanel     = lazy(() => import('./features/admin'));
 
 // Fallback hiển thị khi chunk đang được tải về
@@ -47,6 +48,8 @@ function App() {
         <Route path="/dashboard"          element={<Dashboard />} />
         <Route path="/admin"              element={<ProtectedAdminRoute />} />
         <Route path="/groups/public/:id"  element={<PublicGroupPage />} />
+        <Route path="/demo"               element={<DemoPage />} />
+        <Route path="/demo/:id"           element={<DemoPage />} />
         <Route path="/groups/:id"         element={<TripDetailIndex />} />
         <Route path="*"                   element={<Navigate to="/" replace />} />
       </Routes>

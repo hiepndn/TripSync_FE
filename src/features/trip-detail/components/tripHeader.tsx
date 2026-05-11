@@ -60,6 +60,11 @@ export default function TripHeader() {
 
   // 🌟 Hàm xử lý gọi API AI
   const handleRegenerate = () => {
+    if ((window as any).__DEMO_MODE__) {
+      enqueueSnackbar('Vui lòng đăng nhập để có thể dùng tính năng này', { variant: 'info' });
+      setOpenAiDialog(false);
+      return;
+    }
     setIsRegenerating(true);
     dispatch(regenerateAiAction(groupDetail.id, () => {
       setIsRegenerating(false);
@@ -70,8 +75,12 @@ export default function TripHeader() {
     }) as any);
   };
 
-  // 🌟 Hàm xuất lịch trình ra file JSON
+  // 🌟 Hàm xuất lịch trình ra file Excel
   const handleExport = async () => {
+    if ((window as any).__DEMO_MODE__) {
+      enqueueSnackbar('Vui lòng đăng nhập để có thể dùng tính năng này', { variant: 'info' });
+      return;
+    }
     setIsExporting(true);
     try {
       const { response } = await apiCall({

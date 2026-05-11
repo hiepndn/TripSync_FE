@@ -83,8 +83,14 @@ import {
 } from './types';
 import { enqueueSnackbar } from 'notistack';
 
+// ── Demo mode helper ──────────────────────────────────────────────────────────
+const DEMO_MSG = 'Vui lòng đăng nhập để có thể dùng tính năng này';
+const isDemoMode = () => !!(window as any).__DEMO_MODE__;
+
 // ===== GET GROUP DETAIL (dùng cho polling is_ai_generating) =====
 export const fetchGroupDetailAction = (groupId: string | number) => async (dispatch: Dispatch) => {
+  // Demo mode: skip API call, data already seeded
+  if ((window as any).__DEMO_MODE__) return;
   dispatch({ type: FETCH_GROUP_DETAIL_REQUEST });
   try {
     const { response, error } = await apiCall({
@@ -108,6 +114,8 @@ export const fetchGroupDetailAction = (groupId: string | number) => async (dispa
 
 // ===== GET ACTIVITIES =====
 export const fetchActivitiesAction = (groupId: string | number, isRefetch = false) => async (dispatch: Dispatch) => {
+  // Demo mode: skip API call, data already seeded
+  if ((window as any).__DEMO_MODE__) return;
   if (!isRefetch) {
     dispatch({ type: FETCH_ACTIVITIES_REQUEST });
   }
@@ -132,6 +140,7 @@ export const fetchActivitiesAction = (groupId: string | number, isRefetch = fals
 // ===== VOTE ACTIVITY =====
 export const voteActivityAction =
   (groupId: string | number, activityId: string | number, onSuccess?: () => void) => async (dispatch: any) => {
+    if (isDemoMode()) { enqueueSnackbar(DEMO_MSG, { variant: 'info' }); return; }
     dispatch({ type: VOTE_ACTIVITY_REQUEST });
     try {
       const { response, error } = await apiCall({
@@ -194,6 +203,7 @@ export const unfinalizeActivityAction =
 export const addActivityAction =
   (groupId: string | number, data: any, onSuccess?: () => void, onError?: (msg: string) => void) =>
   async (dispatch: any) => {
+    if (isDemoMode()) { if (onError) onError(DEMO_MSG); return; }
     dispatch({ type: ADD_ACTIVITY_REQUEST });
     try {
       const { response, error } = await apiCall({
@@ -332,6 +342,7 @@ export const deleteAllActivitiesAction =
   
 // ===== LẤY DANH SÁCH AI NỢ AI =====
 export const fetchOptimalDebtsAction = (groupId: string | number) => async (dispatch: any) => {
+  if ((window as any).__DEMO_MODE__) return;
   dispatch({ type: GET_DEBTS_REQUEST });
   try {
     const { response, error } = await apiCall({
@@ -350,6 +361,7 @@ export const fetchOptimalDebtsAction = (groupId: string | number) => async (disp
 
 // ===== LẤY THỐNG KÊ CHI TIÊU =====
 export const fetchExpenseSummaryAction = (groupId: string | number) => async (dispatch: any) => {
+  if ((window as any).__DEMO_MODE__) return;
   dispatch({ type: GET_EXPENSE_SUMMARY_REQUEST });
   try {
     const { response, error } = await apiCall({
@@ -370,6 +382,7 @@ export const fetchExpenseSummaryAction = (groupId: string | number) => async (di
 export const createExpenseAction = 
   (groupId: string | number, data: any, onSuccess?: () => void, onError?: (msg: string) => void) => 
   async (dispatch: any) => {
+  if (isDemoMode()) { if (onError) onError(DEMO_MSG); return; }
   dispatch({ type: CREATE_EXPENSE_REQUEST });
   try {
     const { response, error } = await apiCall({
@@ -428,6 +441,7 @@ export const settleDebtAction =
 
 // ===== LẤY DANH SÁCH LỊCH SỬ KHOẢN CHI (để hiển thị ExpenseHistory) =====
 export const fetchExpenseListAction = (groupId: string | number) => async (dispatch: any) => {
+  if ((window as any).__DEMO_MODE__) return;
   dispatch({ type: GET_EXPENSE_LIST_REQUEST });
   try {
     const { response, error } = await apiCall({
@@ -446,6 +460,7 @@ export const fetchExpenseListAction = (groupId: string | number) => async (dispa
 
 // ===== LẤY DANH SÁCH CHECKLIST =====
 export const fetchChecklistAction = (groupId: string | number) => async (dispatch: any) => {
+  if ((window as any).__DEMO_MODE__) return;
   dispatch({ type: GET_CHECKLIST_REQUEST });
   try {
     const { response, error } = await apiCall({ method: 'GET', url: ENDPOINTS.CHECKLIST.GET_ALL(groupId) });
@@ -477,6 +492,7 @@ export const createChecklistAction = (groupId: string | number, data: { title: s
 
 // ===== TICK HOÀN THÀNH =====
 export const toggleChecklistAction = (groupId: string | number, itemId: number) => async (dispatch: any) => {
+  if (isDemoMode()) { enqueueSnackbar(DEMO_MSG, { variant: 'info' }); return; }
   dispatch({ type: TOGGLE_CHECKLIST_REQUEST });
   try {
     const { response } = await apiCall({ method: 'PATCH', url: ENDPOINTS.CHECKLIST.TOGGLE(groupId, itemId) });
@@ -669,6 +685,7 @@ export const deleteGroupAction =
 
 // ===== FETCH DOCUMENTS =====
 export const fetchDocumentsAction = (groupId: string | number) => async (dispatch: any) => {
+  if ((window as any).__DEMO_MODE__) return;
   dispatch({ type: FETCH_DOCUMENTS_REQUEST });
   try {
     const { response, error } = await apiCall({
