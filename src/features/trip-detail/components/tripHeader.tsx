@@ -86,7 +86,7 @@ export default function TripHeader() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${groupDetail.name}_itinerary.xlsx`;
+        a.download = `${groupDetail.name}.xlsx`;
         a.click();
         URL.revokeObjectURL(url);
         enqueueSnackbar('Xuất lịch trình thành công!', { variant: 'success' });
