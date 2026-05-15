@@ -5,17 +5,22 @@ import {
   Typography,
   Stack,
   Avatar,
-  IconButton,
   AppBar,
   Toolbar,
-  Badge,
   Menu,
   MenuItem,
   BottomNavigation,
   BottomNavigationAction,
   Paper,
 } from '@mui/material';
-import { Notifications, Dashboard as DashboardIcon, FlightTakeoff, Explore, Favorite } from '@mui/icons-material';
+import { 
+  Dashboard as DashboardIcon, 
+  FlightTakeoff, 
+  Explore, 
+  Favorite,
+  InstallMobile as InstallMobileIcon 
+} from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 // Import 3 đứa con vào
@@ -28,6 +33,10 @@ import { useDispatch } from 'react-redux';
 import { getProfileAction } from './redux/action';
 import { useAppSelector } from '@/app/store';
 import { NotificationPanel } from '../notifications/components/NotificationPanel';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
+import PWAInstallButton from '@/components/pwa/PWAInstallButton';
+import PWAAndroidBanner from '@/components/pwa/PWAAndroidBanner';
+import PWAIOSModal from '@/components/pwa/PWAIOSModal';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -40,6 +49,20 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const { profile } = useAppSelector((state) => state.groups);
+
+  // PWA Install
+  const {
+    isInstalled,
+    isInstallable,
+    isIOS,
+    isSafari,
+    showAndroidBanner,
+    showIOSModal,
+    triggerInstall,
+    dismissAndroidBanner,
+    dismissIOSModal,
+    manualShowIOSModal,
+  } = usePWAInstall();
 
   const handleLogout = () => {
     localStorage.removeItem('jwt');
@@ -103,7 +126,29 @@ const Dashboard = () => {
             </Stack>
 
             {/* User Actions */}
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              {/* Desktop install button — chỉ hiện khi có beforeinstallprompt */}
+              {isInstallable && (
+                <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                  <PWAInstallButton onInstall={triggerInstall} />
+                </Box>
+              )}
+
+              {/* iOS manual install button */}
+              {isIOS && isSafari && !isInstalled && (
+                <IconButton 
+                  size="small" 
+                  onClick={manualShowIOSModal}
+                  sx={{ 
+                    color: '#10b981', 
+                    bgcolor: '#f0fdf4',
+                    '&:hover': { bgcolor: '#dcfce7' }
+                  }}
+                >
+                  <InstallMobileIcon fontSize="small" />
+                </IconButton>
+              )}
+
               <NotificationPanel />
               <Avatar
                 src={profile?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(profile?.full_name || profile?.email || 'User')}&backgroundColor=0f766e`}
@@ -136,6 +181,13 @@ const Dashboard = () => {
       {/* ===== BODY: RENDER CON TƯƠNG ỨNG VỚI TAB ===== */}
       {/* Thêm pb cho mobile để không bị bottom nav che */}
       <Box sx={{ py: 6, pb: { xs: 10, md: 6 } }}>
+        {/* Android install banner — hiện ở đầu body, trên mobile */}
+        {showAndroidBanner && (
+          <Container maxWidth="xl" sx={{ mb: 0 }}>
+            <PWAAndroidBanner onInstall={triggerInstall} onDismiss={dismissAndroidBanner} />
+          </Container>
+        )}
+
         {activeTab === 0 && <OverviewTab />}
         {activeTab === 1 && <MyTripsTab />}
         {activeTab === 2 && <ExploreTab />}
@@ -172,6 +224,9 @@ const Dashboard = () => {
 
       {/* ===== EDIT PROFILE MODAL ===== */}
       <EditProfileModal open={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
+
+      {/* ===== PWA iOS MODAL ===== */}
+      <PWAIOSModal open={showIOSModal} onClose={dismissIOSModal} />
     </Box>
   );
 };
