@@ -74,12 +74,16 @@ const MyTripsTab = () => {
       <Tabs
         value={filter}
         onChange={(_, val) => setFilter(val)}
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
         sx={{
           mb: 4,
           borderBottom: '1px solid #e2e8f0',
           '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: 14 },
           '& .Mui-selected': { color: '#111814 !important' },
           '& .MuiTabs-indicator': { bgcolor: '#19e66b', height: 3 },
+          '& .MuiTabScrollButton-root': { color: '#19e66b' },
         }}
       >
         <Tab
