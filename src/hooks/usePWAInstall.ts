@@ -20,6 +20,14 @@ interface UsePWAInstallReturn {
 
 const ANDROID_BANNER_DISMISSED_KEY = 'pwa_android_banner_dismissed';
 const IOS_MODAL_DISMISSED_KEY = 'pwa_ios_modal_dismissed';
+const DISMISS_DURATION = 2 * 24 * 60 * 60 * 1000; // 2 days
+
+function isDismissedRecently(key: string): boolean {
+  const dismissedAt = localStorage.getItem(key);
+  if (!dismissedAt) return false;
+  const timeSinceDismissed = Date.now() - parseInt(dismissedAt, 10);
+  return timeSinceDismissed < DISMISS_DURATION;
+}
 
 function detectPlatform() {
   const ua = navigator.userAgent.toLowerCase();
@@ -28,7 +36,8 @@ function detectPlatform() {
     // iPad on iOS 13+ reports as MacOS
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const isSafari = /safari/.test(ua) && !/chrome/.test(ua) && !/crios/.test(ua);
-  return { isIOS, isSafari };
+  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(ua);
+  return { isIOS, isSafari, isMobile };
 }
 
 function isRunningStandalone(): boolean {
@@ -60,8 +69,7 @@ export function usePWAInstall(): UsePWAInstallReturn {
 
     // iOS Safari: hiện modal sau 2.5s nếu chưa bị dismiss
     if (platform.isIOS && platform.isSafari) {
-      const dismissed = localStorage.getItem(IOS_MODAL_DISMISSED_KEY);
-      if (!dismissed) {
+      if (!isDismissedRecently(IOS_MODAL_DISMISSED_KEY)) {
         const timer = setTimeout(() => {
           setShowIOSModal(true);
         }, 2500);
@@ -75,9 +83,8 @@ export function usePWAInstall(): UsePWAInstallReturn {
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
 
-      // Chỉ hiện banner Android nếu chưa bị dismiss
-      const dismissed = localStorage.getItem(ANDROID_BANNER_DISMISSED_KEY);
-      if (!dismissed) {
+      // Chỉ hiện banner Android nếu là mobile và chưa bị dismiss
+      if (platform.isMobile && !isDismissedRecently(ANDROID_BANNER_DISMISSED_KEY)) {
         setShowAndroidBanner(true);
       }
     };
@@ -111,12 +118,12 @@ export function usePWAInstall(): UsePWAInstallReturn {
 
   const dismissAndroidBanner = () => {
     setShowAndroidBanner(false);
-    localStorage.setItem(ANDROID_BANNER_DISMISSED_KEY, '1');
+    localStorage.setItem(ANDROID_BANNER_DISMISSED_KEY, Date.now().toString());
   };
 
   const dismissIOSModal = () => {
     setShowIOSModal(false);
-    localStorage.setItem(IOS_MODAL_DISMISSED_KEY, '1');
+    localStorage.setItem(IOS_MODAL_DISMISSED_KEY, Date.now().toString());
   };
 
   const manualShowIOSModal = () => {
