@@ -134,12 +134,13 @@ const Dashboard = () => {
                 </Box>
               )}
 
-              {/* iOS manual install button */}
-              {isIOS && isSafari && !isInstalled && (
+              {/* Mobile install button (iOS & Android) */}
+              {((isInstallable && !isIOS) || (isIOS && isSafari && !isInstalled)) && (
                 <IconButton 
                   size="small" 
-                  onClick={manualShowIOSModal}
+                  onClick={isInstallable ? triggerInstall : manualShowIOSModal}
                   sx={{ 
+                    display: { xs: 'flex', md: 'none' }, // Chỉ hiện trên mobile
                     color: '#10b981', 
                     bgcolor: '#f0fdf4',
                     '&:hover': { bgcolor: '#dcfce7' }
