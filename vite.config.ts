@@ -74,10 +74,16 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/vite.svg',
+            src: '/fly_logo_web.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
-            purpose: 'any maskable',
+            type: 'image/jpeg',
+            purpose: 'any',
+          },
+          {
+            src: '/fly_logo_web.png',
+            sizes: '512x512',
+            type: 'image/jpeg',
+            purpose: 'any',
           },
         ],
       },

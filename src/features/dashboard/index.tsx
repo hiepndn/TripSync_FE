@@ -15,7 +15,7 @@ import {
   BottomNavigationAction,
   Paper,
 } from '@mui/material';
-import { Notifications, Flight, Dashboard as DashboardIcon, FlightTakeoff, Explore, Favorite } from '@mui/icons-material';
+import { Notifications, Dashboard as DashboardIcon, FlightTakeoff, Explore, Favorite } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 // Import 3 đứa con vào
@@ -27,6 +27,7 @@ import EditProfileModal from './components/EditProfileModal';
 import { useDispatch } from 'react-redux';
 import { getProfileAction } from './redux/action';
 import { useAppSelector } from '@/app/store';
+import { NotificationPanel } from '../notifications/components/NotificationPanel';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -75,18 +76,11 @@ const Dashboard = () => {
             {/* Logo */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box
-                sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: '#19e66b',
-                  borderRadius: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Flight sx={{ color: 'white', fontSize: 20 }} />
-              </Box>
+                component="img"
+                src="/fly_logo_web.png"
+                alt="TripSync logo"
+                sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }}
+              />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#111814' }}>
                 TripSync
               </Typography>
@@ -110,11 +104,7 @@ const Dashboard = () => {
 
             {/* User Actions */}
             <Stack direction="row" spacing={2} alignItems="center">
-              <IconButton>
-                <Badge color="error" variant="dot">
-                  <Notifications sx={{ color: '#64748b' }} />
-                </Badge>
-              </IconButton>
+              <NotificationPanel />
               <Avatar
                 src={profile?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(profile?.full_name || profile?.email || 'User')}&backgroundColor=0f766e`}
                 sx={{ cursor: 'pointer', width: 36, height: 36 }}

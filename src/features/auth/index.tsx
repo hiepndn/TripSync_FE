@@ -15,7 +15,7 @@ import {
   AppBar,
   Toolbar,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Google, Facebook, Flight } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Google, Facebook } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import travelImg from '../../assets/travel-cover.jpg';
 import { useFormik } from 'formik';
@@ -119,18 +119,11 @@ const AuthPage = () => {
               onClick={() => navigate('/')}
             >
               <Box
-                sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: '#19e66b',
-                  borderRadius: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Flight sx={{ color: 'white', fontSize: 20 }} />
-              </Box>
+                component="img"
+                src="/fly_logo_web.png"
+                alt="TripSync logo"
+                sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }}
+              />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#111814' }}>
                 TripSync
               </Typography>

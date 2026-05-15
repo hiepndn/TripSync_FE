@@ -17,7 +17,6 @@ import {
   Groups,
   Settings,
   Logout,
-  Flight,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import AdminOverview from './pages/AdminOverview';
@@ -75,18 +74,11 @@ const AdminPanel = () => {
         {/* Logo */}
         <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
-            sx={{
-              width: 36,
-              height: 36,
-              bgcolor: '#19e66b',
-              borderRadius: 1.5,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Flight sx={{ color: 'white', fontSize: 20 }} />
-          </Box>
+            component="img"
+            src="/fly_logo_web.png"
+            alt="TripSync logo"
+            sx={{ width: 36, height: 36, borderRadius: 1.5, objectFit: 'cover' }}
+          />
           <Box>
             <Typography variant="subtitle1" fontWeight={700} color="#111814" lineHeight={1.2}>
               TripSync

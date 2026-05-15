@@ -71,10 +71,12 @@ export default function TripDetailIndex() {
   }, [id, dispatch, isAIGenerating]);
 
   // ===== Hiển thị lỗi AI từ field ai_error =====
+  // Chỉ hiện khi: có lỗi, AI không còn đang chạy, và lỗi chưa được hiện trước đó
   useEffect(() => {
     if (!groupDetail) return;
     const currentError = groupDetail.ai_error || '';
-    if (currentError && currentError !== prevAiError.current) {
+    const aiDone = !groupDetail.is_ai_generating;
+    if (currentError && aiDone && currentError !== prevAiError.current) {
       enqueueSnackbar(currentError, {
         variant: 'error',
         autoHideDuration: 8000,
@@ -82,7 +84,7 @@ export default function TripDetailIndex() {
       });
     }
     prevAiError.current = currentError;
-  }, [groupDetail?.ai_error]);
+  }, [groupDetail?.ai_error, groupDetail?.is_ai_generating]);
 
   const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);

@@ -75,4 +75,9 @@ export const ENDPOINTS = {
     CREATE: (groupId: string | number) => `/api/groups/${groupId}/documents`,
     DELETE: (groupId: string | number, docId: string | number) => `/api/groups/${groupId}/documents/${docId}`,
   },
+  NOTIFICATION: {
+    LIST: '/api/notifications',
+    MARK_READ: (id: string | number) => `/api/notifications/${id}/read`,
+    MARK_ALL_READ: '/api/notifications/read-all',
+  },
 };

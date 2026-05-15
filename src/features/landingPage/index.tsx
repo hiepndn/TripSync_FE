@@ -112,18 +112,11 @@ const LandingPage = () => {
             {/* Logo */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box
-                sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: '#19e66b',
-                  borderRadius: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Flight sx={{ color: 'white', fontSize: 20 }} />
-              </Box>
+                component="img"
+                src="/fly_logo_web.png"
+                alt="TripSync logo"
+                sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }}
+              />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#111814' }}>
                 TripSync
               </Typography>
@@ -589,7 +582,12 @@ const LandingPage = () => {
             {/* Brand */}
             <Stack spacing={2} sx={{ gridColumn: { xs: 'span 2', md: 'span 1' } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Flight sx={{ color: '#19e66b', fontSize: 24 }} />
+                <Box
+                  component="img"
+                  src="/fly_logo_web.png"
+                  alt="TripSync logo"
+                  sx={{ width: 24, height: 24, borderRadius: 0.5, objectFit: 'cover' }}
+                />
                 <Typography variant="h6" fontWeight={700}>
                   TripSync
                 </Typography>
